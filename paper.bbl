@@ -1,0 +1,22 @@
+\begin{thebibliography}{3}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{}
+
+\bibitem[{Binz et~al.(2012)Binz, Breiter, Leymann, and Spatzier}]{Binz2009}
+Binz, T., Breiter, G., Leymann, F., Spatzier, T.: {Portable Cloud Services
+  Using TOSCA}.
+\newblock IEEE Internet Computing 16(03), 80--85 (May 2012)
+
+\bibitem[{Kopp et~al.(2013)}]{Winery}
+Kopp, O., et~al.: {Winery -- A Modeling Tool for {TOSCA}-based Cloud
+  Applications}.
+\newblock In: Proceedings of 11\textsuperscript{th} International Conference on
+  Service-Oriented Computing (ICSOC'13). LNCS, vol. 8274, pp. 700--704.
+  Springer Berlin Heidelberg (2013)
+
+\bibitem[{Scharrer(2017)}]{mwe}
+Scharrer, M.: The \texttt{mwe} Package (2017),
+  \urlprefix\url{http://texdoc.net/mwe}
+
+\end{thebibliography}
