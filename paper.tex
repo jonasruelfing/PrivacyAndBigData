@@ -453,6 +453,10 @@ Over the years different terminologies came up in the are of SMPC. Following wil
 There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and for runtime complexity. SMPC should run as fast as possible, while still providing all the neccesary security guarantees.
 
 To describe which party has which rights, and how many parties can be corrupted so the security can still be guaranteed, access structures were introduced.
+An access structures contains the information which subsets of parties are allowed to combine their information to discover the secret. In the literature this subset of parties is called qualified set.  An access structure is called \(Q_l \) if at least l+1 parties are needed to  form a qualified set. 
+An (n,t)-threshold scheme with t<n/l means that at least t+1 parties are needed to form a qualified set. Here, n is the number of total parties, and t is number of possible adversaries while not revealing any secrets.
+A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that it secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can give needed security guarantees. That means a full threshold scheme is a (n, n -1) threshold scheme. (???: IS THIS CORRECT???)
+
 
 An access structure for a set of parties denes which subsets of parties are
 allowed to discover the secret if they pool their information. Such quorums of
@@ -517,6 +521,15 @@ o
 o	Compiler; similar to python
 o	Why necessary? Easily able to write own configurations for SMCP for SCALE-MAMBA
 c)	Idea, Computational Logic
+Most LSSS-based MPC protocols split the computation into two parts: an of-
+
+ine phase, in which parties interact using expensive" public-key cryptography
+to lay the groundwork for an online phase in which only cheap" informationtheoretic
+primitives are required. The online phase is where the actual circuit
+evaluation takes place. For the access structures considered in this work, namely
+Q2 structures, the offline phase is almost as fast as the online phase. Thus the
+goal here is to minimize the cost of communication in both phases.
+
 -	Online  Offline phase
 -	Offline phase:
 o	Calculation of beaver triples
