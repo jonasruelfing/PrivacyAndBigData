@@ -331,15 +331,15 @@
 
 \begin{document}
 
-\title{Paper Title}
+\title{Secure Multi-Party Computation with SCALE-MAMBA}
 %If Title is too long, use \titlerunning
 %\titlerunning{Short Title}
 
 %Single insitute
-\author{Firstname Lastname \and Firstname Lastname}
+\author{Jonas Rülfing}
 %If there are too many authors, use \authorrunning
 %\authorrunning{First Author et al.}
-\institute{Institute}
+\institute{Seminar: Privacy and Big Data - RWTH Aachen}
 
 %% Multiple insitutes - ALTERNATIVE to the above
 % \author{%
@@ -360,15 +360,190 @@
 \maketitle
 
 \begin{abstract}
-  \lipsum[1]
+  This thesis takes a look at SMPC especally using SCALE-MAMBA. For that it introduces first what SMPC is,  how SPDZ the precessor of SCALE-MAMBA works and what are the differences. It discusses the functionalities of SCALE-MAMBA, especially the split into online and offline phase, how the beaver tripels are used for sacrificing and in which complexity classes the calculations are done. Finally it compares scale mamba shortly to other competitors in the market and gives an outlook what next technologies are coming right now and are coming in the near future in SMPC.
 \end{abstract}
 
 \begin{keywords}
-  keyword1, keyword2
+  SMPC, SCALE-MAMBA, SPDZ,  LSSR, 
 \end{keywords}
 
+\section{Motivation and Introduction}\label{sec:intromoti}
+a)	Motivation: 
+-	There are a lot of computations that have to be done in a distributed environment in todays technologies and in the future
+-	Not possible to have all the information in one place anymore
+-	Sometimes hard to know who to trust 
+-	Problem: want to compute something together but we don’t want to share our information
+-	A lot of use cases: number of distributed environments is climbing rapidly; for example see crypto currencies (distributed block chain; no one can do something alone, everyone relies on everyone else (or at least on a majority of the other participants)
+-	A lot of research. Right now more theoretical than practical works; a lot of computational overhead
+-	Scale-Mamba: 
+o	Developed by a research team of the KU Leuven
+o	Implements a lot of the theoretical foundations
+o	Crypto suit, end to end
+o	Possible to be safe against corruption with abort
+o	Good (compared to others) execution times
+o	Improvement of before existing technologies (SPDZ especially, and others)
+
+
+b)	Structure:
+This thesis will try to give an overview over Secure Multiparty Computation, especially focusing on Scale-Mamba and all the technologies it builds upon. Therefore, it will explain the basic technologies first in an abstracted manner and later go more into detail. 
+
+
+
+
+\section{Cryptography Basics}\label{sec:basics}
+a)	Message authentication code (MAC)
+b)	Oblivious transfer (OT)
+c)	Homomorphic Encryption (HE)
+d)	Somewhat Homomorphic Encryption (SHE)
+e)	Access structures?
+f)	Monotone Span Programs (MSP) ?
+g)	FHE – fully homomorphic encryption?
+h)	Different adversary types
+a.	Malicious
+b.	Honest but corious
+
+Maybe move this behind the basic introduction of SMPC? Some parts like access structures 
+
+
+
+\section{SMPC Basics and History}\label{sec:smpc}
+a)	Introduction (History, Yao Garbled Circuit, Shamir Secret Sharing Scheme)
+a.	Part of cryptography that was started in the 1970s and is getting much more relevance in the last years
+b.	YAOs Millionaire problem
+c.	Mental poker
+d.	Yaos garbled circuit
+e.	Shamirs secret sharing scheme
+i.	Choose random polynomial out of finite field to a prime
+ii.	Degree of polynomial t is the number of tolerated adversaries
+iii.	Polynomial: f(0) = s
+iv.	Send shares to each other player
+v.	 T+1 shares needed to reconstruct secret (with Lagrange interpolation in O(n hoch 2))
+vi.	These can be used for different operations; for example some calculations can be made on the secrets, and at the end the final result is revealed and calculated and compared; so a result can be calculated without revealing the own secret
+f.	Other secret sharing schemes
+i.	Replicated (KNF based)
+ii.	Dx`NF based
+b)	SMPC basics
+-	Access structures
+-	Montone span programs?
+-	Offline/online phase
+-	Secret Sharing foundations (mathematical)
+c)	Early adoptions of LSSR; MASCOT?
+d)	SPDZ
+-	Maybe not too many details, because a lot of things are similar to SCALE-MAMBA?
+
+
+\section{SCALE-MAMBA}\label{sec:scalemamba}
+
+a)	Why we need it? Problems of SPDZ, other SMPC protocols
+b)	Architecure
+-	Written in C++
+-	Scale: Secure Computation Algorithms from LEuven
+o	SMPC foundations
+o	Code base based on different projects like SPDZ, HE…?,.
+o	Combination of offline  online phase
+o	We will focus more on this then on the Compiler part, its more relevant for this thesis
+o	
+-	Mamba: Multiparty AlgorithMs Basic Argot
+o	Compiler; similar to python
+o	Why necessary? Easily able to write own configurations for SMCP for SCALE-MAMBA
+c)	Idea, Computational Logic
+-	Online  Offline phase
+-	Offline phase:
+o	Calculation of beaver triples
+o	Precalculations like MAC?
+-	Online phase:
+o	Secret sharing
+o	Sacrifice of triples to check calculation results
+o	Check for adversaries (MAC?)
+o	Abortion
+-	Options/ Configurations:
+o	It is possible to use different setups, depending on the taste of the user
+d)	Performance, real world usage, problems, upcoming developments, 
+-	Upcoming: Calculating offline data before, and then compiling the Mamba code just in time (especially full threshold access structures need a lot of time)
+
+
+
+
+\section{Comparison}\label{sec:comparison}
+
+
+a.	What else is out there?
+b.	Different use cases – when which SMPC tool is more useful; what are the strengths of SCALE-MAMBA compared to other ones?
+c.	Factual comparisons
+
+
+\section{Outlook and Conclusion}\label{sec:outlook}
+
+a.	What brings the future in general in SMPC?
+b.	SMPC is a technology that will shape the future (at least a bit)
+
+
+a.	SCALE-MAMBA is amazing
+b.	We saw how it works in which cases it is more useful
+c.	We saw why SMPC is necessary; we saw that we need it (or at least we should use it)
+
+
+
+\section{TODO LIST}\label{sec:xxx}
+
+
+Format: 
+Your report should have a minimum length of 15 pages LNCS Style, excluding references. 
+Your report has to include references, but they do not count towards your total page limit. The 'literature list' is the list of references. 
+
+Try not to write more than 20 pages unless you feel you have a very good reason. 
+
+Template: 
+The LNCS is template is available for Latex [1] and Word [2] on the Springer page, 
+but I suggest you use this quick start version [3]. 
+
+How to correctly include references in your literature list: 
+
+Please refer to e.g. the Chicago manual of style [5].
+
+Any valid reference style is accepted, as there are many styles, and as they basically contain the same information. 
+
+
+
+Next steps: 
+I will send you instructions about the peer review process closer to the next deadline.
+
+
+
+Best regards, Benjamin Heitmann.
+
+
+
+-	Use Latex
+-	Find examples/ empirical results
+-	Gmw protocol – scapi library LSSR based, passive as comparison
+-	Reusing results: maybe check in night for adversaries?
+-	Could be nice to include reuse
+-	
+
+
+
+\section{Bibliography}\label{sec:biblio}
+
+
+\section{Abbreviations}\label{sec:abb}
+
+
+List of abbrviations
+LSSR
+SMPC
+SPDZ
+OT
+MAC
+HE
+SHE
+SCALE
+MAMBA
+
+
+
+
 \section{Introduction}\label{sec:intro}
-\lipsum[1-3]\todo{Refine me}
 
 The remainder of the paper starts with a presentation of related work (\cref{sec:relatedwork}).
 It is followed by a presentation of hints on \LaTeX{} (\cref{sec:hints}).
@@ -481,6 +656,7 @@ E.g., \qq{The 2\textsuperscript{nd} conference on examples}.
 When you use \href{https://www.jabref.org}{JabRef}, you can use the clean up command to achieve that.
 See \url{https://help.jabref.org/en/CleanupEntries} for an overview of the cleanup functionality.
 
+
 \renewcommand{\bibsection}{\section*{References}} % requried for natbib to have "References" printed and as section*, not chapter*
 % Use natbib compatbile splncsnat style.
 % It does provide all features of splncs03, but is developed in a clean way.
@@ -502,3 +678,4 @@ See \url{https://help.jabref.org/en/CleanupEntries} for an overview of the clean
 %
 All links were last followed on October 5, 2017.
 \end{document}
+ 
