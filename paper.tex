@@ -363,10 +363,6 @@
   This thesis takes a look at SMPC especally using SCALE-MAMBA. For that it introduces first what SMPC is,  how SPDZ the precessor of SCALE-MAMBA works and what are the differences. It discusses the functionalities of SCALE-MAMBA, especially the split into online and offline phase, how the beaver tripels are used for sacrificing and in which complexity classes the calculations are done. Finally it compares scale mamba shortly to other competitors in the market and gives an outlook what next technologies are coming right now and are coming in the near future in SMPC.
 \end{abstract}
 
-\begin{keywords}
-  SMPC, SCALE-MAMBA, SPDZ,  LSSR, 
-\end{keywords}
-
 \section{Motivation and Introduction}\label{sec:intromoti}
 a)	Motivation: 
 -	There are a lot of computations that have to be done in a distributed environment in todays technologies and in the future
@@ -395,19 +391,93 @@ a)	Message authentication code (MAC)
 b)	Oblivious transfer (OT)
 c)	Homomorphic Encryption (HE)
 d)	Somewhat Homomorphic Encryption (SHE)
-e)	Access structures?
-f)	Monotone Span Programs (MSP) ?
+//e)	Access structures?
+//f)	Monotone Span Programs (MSP) ?
 g)	FHE – fully homomorphic encryption?
 h)	Different adversary types
 a.	Malicious
 b.	Honest but corious
+
+\subsection{Adversary types}
+Cryptography is the science of protecting information or communication from an adversary. This adversary is normally a third party that wants to get information for his own gain or want to sabotage something because of his own interest. In the are of SMPC we we normally divide between two types of adversaries. In SMPC we expect that everyone but ourselves can be controlled by an adversary.  That means the adversary can control between one and all of the other parties with which we are communicating. The difference to the normal cryptographic adversary model is, that the adversary is one of the parties we are communicating with but not a third party that tries to intercept communication.
+\subsubsection{Honest but curious}
+This type of adversary tries to gain as much information as possible. But this adversary is obeying to the rules of our protocol, that means it is impossible to know that this party is controlled by a third entity. This adversary tries to retrieve some of the secret information from the other parties, by using all the information he gets during the execution of the protocol.
+
+\subsection{Malicious adversary}
+While this adversary also wants to gain all the information, he is not obeying to the rules of the protocol. This type of adverary can send different inputs to manipulate the results he receives. Furthermore, he wants to interrupt the whole protocol. That could mean making the computation impossible, but as well modifying his own input or his own calculations, so the final result is changed and might lead to different implications
+
+It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value.
+
 
 Maybe move this behind the basic introduction of SMPC? Some parts like access structures 
 
 
 
 \section{SMPC Basics and History}\label{sec:smpc}
-a)	Introduction (History, Yao Garbled Circuit, Shamir Secret Sharing Scheme)
+\subsection{Beginnings}
+As we saw in the introduction, there are a lot current and much more upcoming usecases of calculating the output of a function in a distributed environment with multiple parties while at the same time keeping all the individual inputs secret. The first explorations in these fields started in the 1970s, with theoretical problems like the mental poker problem(how can two players play poker while not being in the same physical location and making sure noone is cheating) and Yaos millionaire problem(how can can two millionaires decide who is richer than the other while not revealing their wealth). \newline
+These explorations lead to a group of basic protocols which established the area of Secure Multi-Party Computation(SMPC).
+
+ Now we will take a short look on the two most famous of these protocols, which both were the basis for a whole family of algorithms established in the years to follow until today.
+
+\subsection{Yaos Garbled Circuit}
+
+Most MPC protocols fall into one of two broad categories: garbled circuits,
+and linear-secret-sharing-scheme-based (LSSS-based) MPC. The garbled-circuit
+approach, which began with the work of Yao [38], involves some collection of
+parties garbling" a circuit to conceal the internal circuit evaluations, and then
+later a single party or a collection of parties jointly evaluating the garbled circuit.
+
+ 
+\subsection{Shamirs Secret Sharing Scheme}
+
+LSSS - linear secret sharing scheme
+
+By contrast, the LSSS-based approach involves using a so-called linear
+secret-sharing scheme, in which the parties: share" a secret into several shares
+which are distributed to different parties, perform computations on the shares,
+and then reconstruct the secret at the end by combining the shares to determine
+the output. LSSS-based MPC is traditionally presented in the context of
+information-theoretic security, although many modern practical protocols that
+realise LSSS-based MPC often make use of computationally-secure primitives
+such as somewhat-homomorphic encryption (SHE) [25] or oblivious transfer
+(OT) [32]. In this paper, we focus on computationally-secure LSSS-based MPC.
+
+
+\subsection{Terminology}
+Over the years different terminologies came up in the are of SMPC. Following will be a short introduction into some of them, so their definitions are clear.
+
+\subsubsection{Oblivious Transfer}
+
+\subsubsection{Access structures}
+There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and for runtime complexity. SMPC should run as fast as possible, while still providing all the neccesary security guarantees.
+
+To describe which party has which rights, and how many parties can be corrupted so the security can still be guaranteed, access structures were introduced.
+
+An access structure for a set of parties denes which subsets of parties are
+allowed to discover the secret if they pool their information. Such quorums of
+parties are often called qualied sets of parties. An access structure is called Q`
+(for ` 2 N) if the union of any set of ` unqualied sets of parties is missing at
+least one party. We discuss this in some detail later, but for now the reader can
+think of an (n; t)-threshold scheme where t < n=` which is where a subset of
+parties is qualied if and only if it is of size at least t + 1. Computationallysecure
+LSSS-based MPC has recently seen signicant, effcient instantiations
+for full-threshold access structures [7, 23, 25, 32], which is where the protocol is
+secure if at least one party is honest, even if the adversary causes the corrupt
+parties to run arbitrary code (though this behaviour may cause the protocol to
+abort rather than provide output to the parties). In the threshold case similar
+effcient instantiations are known, such as the older VIFF protocol [21] which
+uses (essentially) information-theoretic primitives only.
+
+
+\subsubsection{Monotone Span Programs}
+
+
+
+
+
+
+
 a.	Part of cryptography that was started in the 1970s and is getting much more relevance in the last years
 b.	YAOs Millionaire problem
 c.	Mental poker
