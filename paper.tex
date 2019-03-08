@@ -474,6 +474,8 @@ abort rather than provide output to the parties). In the threshold case similar
 effcient instantiations are known, such as the older VIFF protocol [21] which
 uses (essentially) information-theoretic primitives only.
 
+\subsubsection{Zero Knowledge Proofs (ZKPoKs)}
+
 
 \subsubsection{Monotone Span Programs}
 supposedly unimportant
@@ -504,17 +506,48 @@ b)	SMPC basics
 -	Secret Sharing foundations (mathematical)
 c)	Early adoptions of LSSR; MASCOT?
 d)	SPDZ
--	Maybe not too many details, because a lot of things are similar to SCALE-MAMBA?
+-	Maybe not too many details, because a lot of things are similar to SCALE-MAMBA
+
+
+Sounds ness slack?
 
 
 \section{SCALE-MAMBA}\label{sec:scalemamba}
+
+\subsubsection{Overview}
+
+In the last years, the research in SMPC is constantly ongoing, and there are new approaches or improvements to old approaches appearing regulary. But most of these publications only focus on a small area of the whole picture. SCALE-MAMBA is a project that tries to combine the state of the art research into one system. That means, that it is offering kind of an end-to-end system for SMPC.
+It is a research system that is continously in development, therefore, there is not a single final version that can be examined. It offers as well a wide range of protocols for different usecases, i.e. it is possible to use the system in different confidurations. That also means for this thesis, that there is not a single process that can be examined. Therefore, this thesis tries to give more an overview how the process works in general, which are the main, especially which are newest and best, parts and where are the problems and bottlenecks.
+ 
+In general, the protocol is split in two parts, first an offline phase and secondly and online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything.
+
+While SCALE-MAMBA also offers different access structures, the most commonly used security configuration is active security with abort in a full threshold scheme, that means that every except one party could be corrupted, and still no information is leaked, because the evaluation is aborted.
+
+\subsubsection{Offline phase}
+
+-basic idea
+-beaver
+-SPDZ
+-scale-mamba
+-further improvements?
+
+
+\subsubsection{Beaver triples}
+
+
+a,b, c=ab
+1.e = Open([x+a]
+)2.d = Open([y+b])
+3.[xy] = [c]+e[y] + d[x] –ed
+
+
 
 a)	Why we need it? Problems of SPDZ, other SMPC protocols
 b)	Architecure
 -	Written in C++
 -	Scale: Secure Computation Algorithms from LEuven
 o	SMPC foundations
-o	Code base based on different projects like SPDZ, HE…?,.
+0 00 o	Code base based on different projects like SPDZ, HE…?,.
 o	Combination of offline  online phase
 o	We will focus more on this then on the Compiler part, its more relevant for this thesis
 o	
@@ -522,6 +555,9 @@ o
 o	Compiler; similar to python
 o	Why necessary? Easily able to write own configurations for SMCP for SCALE-MAMBA
 c)	Idea, Computational Logic
+
+Scale-Mamba is an implementation of SPDZ among other protocols. SPDZ is right now the most efficient protocol in use. 
+
 Most LSSS-based MPC protocols split the computation into two parts: an of-
 
 ine phase, in which parties interact using expensive" public-key cryptography
@@ -535,8 +571,15 @@ goal here is to minimize the cost of communication in both phases.
 -	Offline phase:
 o	Calculation of beaver triples
 o	Precalculations like MAC?
+o 	Offline phase based on Overdrive protocols (before Mascot)
+		Low-Gear: For smal numbers, O(n to the power of 2), faster than O(n )
+		High-gear: For high numbers (for SCALE-MAMBA: Only high gear is implemented)
+
 -	Online phase:
 o	Secret sharing
+
+SPDZ  Secret  Sharing.This  SPDZ  protocol  [15]  processes  data  using  an  authenticated  secret  sharingscheme defined over a finite fieldFp, wherepis prime. The secret sharing scheme is defined as follows: EachpartyPiholds a shareαi∈Fpof a global MAC keyα=∑i∈[n]αi. A data elementx∈Fpis held in secretshared form as a tuple{xi,γi}i∈[n], such thatx=∑ixiand∑γi=α·x. We denote a valuexheld in such asecret shared form as〈x〉. The main goal of the SPDZ offline phase is to produce random triples (〈a〉,〈b〉,〈c〉)such thatc=a·b. If we wish to denote the specific value on whichγiis a MAC share then we writeγi[x].
+
 o	Sacrifice of triples to check calculation results
 o	Check for adversaries (MAC?)
 o	Abortion
@@ -554,6 +597,11 @@ d)	Performance, real world usage, problems, upcoming developments,
 a.	What else is out there?
 b.	Different use cases – when which SMPC tool is more useful; what are the strengths of SCALE-MAMBA compared to other ones?
 c.	Factual comparisons
+
+SCAPI
+SCAPI is an open-source Java library for implementing secure two-party and multiparty computation protocols (SCAPI stands for the “Secure Computation API”). It provides a reliable, efficient, and highly flexible cryptographic infrastructure.
+
+https://scapi.readthedocs.io/en/latest/intro.html
 
 
 \section{Outlook and Conclusion}\label{sec:outlook}
