@@ -523,6 +523,13 @@ In general, the protocol is split in two parts, first an offline phase and secon
 
 While SCALE-MAMBA also offers different access structures, the most commonly used security configuration is active security with abort in a full threshold scheme, that means that every except one party could be corrupted, and still no information is leaked, because the evaluation is aborted.
 
+
+
+Actively Secure
+Additive Shares: 
+
+
+
 \subsubsection{Offline phase}
 
 -basic idea
@@ -530,15 +537,33 @@ While SCALE-MAMBA also offers different access structures, the most commonly use
 -SPDZ
 -scale-mamba
 -further improvements?
+- communication chanels during the offline phase
+
+A. First improvement with MASCOT
+using OT for triple generation isntead of SHE
+
+B. Overdrive/TopGear
+Improving SHE -> This gave a lot of needed push to SPDZ
+
+In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. In one of there earlier works, BDOZ, pairwise MACs were used to authentificate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorpic encryption. To guarantee the data integritym pairwise zero-knowledge proofs were used, in total O(n2) of them. 
+In SPDZ instead of HE, SHE was used, reducing the amount of ZK proofs per triple by a factor of n and as well the overhead per triple, because they used a single ZKPoK for proving thousand of triples.
 
 
 \subsubsection{Beaver triples}
 
+Beaver triples 
 
 a,b, c=ab
 1.e = Open([x+a]
 )2.d = Open([y+b])
 3.[xy] = [c]+e[y] + d[x] –ed
+
+
+
+\subsubsection{Online Phase}
+
+\subsubsubsection{Sacrificing}
+
 
 
 
