@@ -526,8 +526,19 @@ While SCALE-MAMBA also offers different access structures, the most commonly use
 
 
 Actively Secure
-Additive Shares: 
+Additive Shares: Innputs are shared via an additive secret sharing scheme.
 
+Scale-mamba: fully integrated offline/online phase
+These random triples are further used in the online phase where parties interact by broadcasting data whenever a value is reveale
+Privacy and correctness are then guaranteed by authenticated shared values with information-theoretic MACs4 on top of them.
+To open a valueJxK, all players Pi broadcast their shares x(i), commit and then open m(i) − x · ∆(i). Afterwards they check if the sum of the latter is equal to zero. One can check multiple values at once by taking a random linear 4 These are not be confused with the more common symmetric-key MACs.
+7
+combination of m(i)−x·∆(i) exactly as in the MAC Check protocol in Figure 5 in Section 3. 
+
+
+We make all our calculations over a finite field F over a prime p. The field contains p elements, 0 to p-1, and all results are put through modulo p so they are still in F.
+
+Linear addition is easy, because we use a linear secret sharing scheme. Secrets can be added by one party/MACs as well, without any realy computational complexity. 
 
 
 \subsubsection{Offline phase}
@@ -539,30 +550,98 @@ Additive Shares:
 -further improvements?
 - communication chanels during the offline phase
 
+
+\subsubsection{Beaver triples}
+
+Beaver triples 
+
+
+
+
+In the offline or pre-processing phase, the most important part is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase. They are used to verify that the computations were done correct, but we will take a closer look into that later./(Or maybe: They are needed for multiplications, because multiple parties have to be involved for them.)
+
+Beaver triples are a tuple of three numbers (a,b,c), a,b,c Element F, with a and b being chosen uniformly randomly, and a*b=c.
+
+SPDZ
+For the offline phase there is a global public key a global secret key. Every party has a share Delta of this secret key, and there is a distributed decryption protocol, so that the parties decrypt together and every party gets a secret sharing of the cleartext. (Look into more detail in RETSHARE in DPSZ12 by DAMGARD)
+
+For passive security only, the parties can simply broadcast encryptions of randomly sampled shares ai,bi and their share of the MAC key ∆i. These encryptions can be added up and multiplied to produce encryptions of (a·b,a· ∆,b·∆,a·b·∆) if the encryption allows multiplicative depth two. Distributed decryption then allows the parties to receive an additive secret sharing of each of those values, which already is enough for a triple. Since achieving a higher multiplicative depth is relatively expensive, SPDZ only uses a scheme with multiplicative depth one and extends the distributed decryption to produce a fresh encryption of a·b, which then can be multiplied with the encryption of ∆. In the context of an active adversary there are two main issues: First, the ciphertexts input by corrupted parties have to be correct and independent of the honest parties’ ciphertexts. This is where zero-knowledge is applied to prove that certain values lie within a certain bound. Second, the distributed decryption protocol actually allows the adversary to add an error - that is, the parties can end up with a triple (a,b,ab + e) with e known to the adversary and where the MACs have additional errors as well. While an error on a MAC will make the MAC check fail in any case, the problem of an incorrect triple requires more attention. This is where the so-called SPDZ sacriﬁce comes in. Imagine two triples with potential errors (JaK,JbK,Jab + eK) and (Ja0K,Jb0K,Ja0b0 + e0K), and let t be a random ﬁeld element. Then, t·(ab + e)−(a0b0 + e0)−(ta−a0)·b−a0·(b−b)0 = tab + te−a0b0−e0−tab−a0b−a0b + a0b0 = te−e0, which is 0 with probability negligible in sec for a ﬁeld of size at least 2sec if either e 6= 0 or e0 6= 0. The use of MACs means that the adversary cannot forge the result of this computation, hence any error will be caught with overwhelming probability since with the additive secret sharing of our triples the parties have
+
+
+
+
+
 A. First improvement with MASCOT
 using OT for triple generation isntead of SHE
 
 B. Overdrive/TopGear
 Improving SHE -> This gave a lot of needed push to SPDZ
 
-In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. In one of there earlier works, BDOZ, pairwise MACs were used to authentificate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorpic encryption. To guarantee the data integritym pairwise zero-knowledge proofs were used, in total O(n2) of them. 
-In SPDZ instead of HE, SHE was used, reducing the amount of ZK proofs per triple by a factor of n and as well the overhead per triple, because they used a single ZKPoK for proving thousand of triples.
+In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that are the so called Zero Proofs of Konwledge Protocol(ZPoKP).
+
+In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly, or atleast that they dont divert too much from the expected result.
 
 
-\subsubsection{Beaver triples}
+ZPoKP are a technique that was introduced  in 1985 by (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.419.8132&rep=rep1&type=pdf). The idea is that one party can prove to another party that it knows a specific value x, without revealing the value of x to the other person, nor revealing any other knowledge about the value. 
+The ZPoKP used in SPDZ is a Schnorr-like protocol (these prtocols ........).
 
-Beaver triples 
+Assumed Alice(in this scenario called the prover) wants to prove to Bob (the verifier) that she knows x in a Field F, such that f(x)=y. It is as well assumed, that f is homomorphic with respect to the field operations in F.
+1. Alice chooses a random s element F, calculates a = f(s) and sends a to Bob
+2. Bob samples a random e out of F and sends it to Alice
+3. Alice calculates z=s+e*x and sends it to Bob
+4. Bob checks if f(z)=a+e*y
 
-a,b, c=ab
-1.e = Open([x+a]
-)2.d = Open([y+b])
-3.[xy] = [c]+e[y] + d[x] –ed
+Correctness:
+Bob wants to prove that z provided by Alice contains the proper x, so that f(x)=y. 
+Because f is homomorphic, obviously f(z)=f(s)+f(e*x)=f(s)+e*f(x)=a+e*y with f(s)=a and f(x)=y.
+So Bob has to calculate a+e*y and f(z) with the provided z by Alice. If they are equal, he knows that Alice knows the x so that f(x)=y.
+He can do that, because he got provided the a and z by Alice, he knew the y before the protocol and he chose the e himself.
+
+Confidentiality:
+We also have to make sure, that Alice did not share any information regarding her x.
+In the firt step she chose a random element s and calulated a=f(s). This information is independent on her secret x, so she didn;t share any information.
+When calculating z=s+e*x, she also didnt share any information regarding x, as long it is guaranteed that Bob didnt have any knowledge about the s.
+So under the assumption that Alice chooses a new random s each time the protcol is executed, she doesn't share any information regarding her secret x.
+
+
+
+The semi-homomorphic solution works roughly as follows: One party sends an encryption Enc(a) of their input under their own public key to the other, which replies by C := b·Enc(a)−Enc(cB), where b denotes the second party’s input, and cB is chosen at random. Any semi-homomorphic encryption scheme allows the multiplication of a known value with a ciphertext, hence the decryption of the second message is cA := b·a−cB, which makes (cA,cB) an additive secret sharing of a·b. Here the noise of C might reveal information about b but this can be mitigated by adding random noise from an interval that is sec larger than the maximum noise of C. This technique, sometimes called “drowning”, is also used in the distributed decryption of SPDZ. 
+
+
+
+In one of there earlier works, BDOZ, pairwise MACs were used to authentificate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorpic encryption. To guarantee the data integritym pairwise zero-knowledge proofs were used, in total O(n2) of them. 
+In SPDZ instead of HE, SHE based on the BGV ecnryption scheme was used, reducing the amount of ZK proofs per triple by a factor of n and as well the overhead per triple, because they used a single ZKPoK for proving thousand of triples.
+Because BGV is a lattice based SHE scheme and therefore the ZKPoK are relatively expensive, for a long while a straetgy called cut-and-choose was used, which only offered covert security. 
+In 2016 the part was changed to an OT based offline phase called MASCOT, which sped up tbe process by two order of magnitude compared to the previous implementation(Damgard et al. (ESORICS ’13). ).
+But shortly afterwards it was turned back to a SHE based offline phase, with the introduction of the so called Overdrive, being at least 6 times faster than MASCOT. Overdrive includes two parts, a protocol called Low Gear protocol for small numbers, and a proctocol called High Gear for larger numbers. In version 1.2 of Scale-mamba only the HighGear protocol was used, and in version 1.3 solely an improvement to this protocol is supported, called TopGear.
+
+
+
+
+The High Gear protocol tweaked the original ZKPoK used in SPDZ. The basic idea is, that all the parties prove a single joint statement instead of multiple smaller ones.
+
+SoundsnessSlack? protocols based on this, because the protocols which prove the exact bounds are too slow in praxis
+
+But it still isn't as efficient and secure as it could be, because the Sounds ness security SndSec is related to the 
+
+The zero-knowledge security ZK sec is related to a statistical distance, whereas the soundness security Snd sec is related to the probability that an adversary can cheat in an interactive protocol. A low value for Snd sec is rather acceptable than a low value for ZK sec. 2. The practical complexity of the protocol, in particular the memory and computational consumption, is dominated by Snd sec. It turns out that ZK sec has very virtually no eﬀect on the overall execution time of the oﬄine phase, for large values of p.
+
+Therefore, in the current iteration of Scale-Mamba an improved version of the HighGear protocol is implemented.
+
 
 
 
 \subsubsection{Online Phase}
+In the online phase the main task is to evaluate an arbitrary circuit with secret inputs. After the parties have provided their inputs using the Input command, the next step is to perform addition and multiplication between authenticated shared values. Since the addition is linear, it can be done via local computation. However multiplying two valuesJxK,JyKrequires some interaction between the parties. To computeJx·yKa fresh random tripleJaK,JbK,JcK=JabKhas to be available for Beaver’s trick [Bea92]. It works by openingJx−aKandJx−bKto get  and ρ respectively. Then the authenticated product can be obtained by settingJx·yK←JcK+ JbK+ ρJaK+ ·ρ
 
-\subsubsubsection{Sacrificing}
+
+
+
+\subsubsection{Sacrificing}
+a,b, c=ab
+1.e = Open([x+a]
+)2.d = Open([y+b])
+3.[xy] = [c]+e[y] + d[x] –ed
 
 
 
