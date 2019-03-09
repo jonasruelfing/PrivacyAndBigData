@@ -630,6 +630,11 @@ Therefore, in the current iteration of Scale-Mamba an improved version of the Hi
 
 
 
+First: compute SPDZ style MACs; additive secret sharing of the product of a value, and of a global MAC key, which is secret shared additevly as well
+
+Multiplication triple generation: 2 party protocol; --> Reduction of communication channels(link paper); reduction of most part to Q2; this enables us to not have a complete network of communication channels for most of the protocol (offline phase)
+
+
 
 \subsubsection{Online Phase}
 In the online phase the main task is to evaluate an arbitrary circuit with secret inputs. After the parties have provided their inputs using the Input command, the next step is to perform addition and multiplication between authenticated shared values. Since the addition is linear, it can be done via local computation. However multiplying two valuesJxK,JyKrequires some interaction between the parties. To computeJx·yKa fresh random tripleJaK,JbK,JcK=JabKhas to be available for Beaver’s trick [Bea92]. It works by openingJx−aKandJx−bKto get  and ρ respectively. Then the authenticated product can be obtained by settingJx·yK←JcK+ JbK+ ρJaK+ ·ρ
