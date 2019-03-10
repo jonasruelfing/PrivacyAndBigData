@@ -365,40 +365,45 @@
 
 \section{Motivation and Introduction}\label{sec:intromoti}
 
-In todays world, and even more in the future, there are a lot of computations that have to be done in a distributed environment. Furthermore, in a lot of these cases the parties participating in the computation don't want to reveal their own information.\\
+In todays world, and even more in the future, there are a lot of computations that have to be done in a distributed environment, this might be because there are different parties involved, but also because the amount of data is getting so big that it becomes impossible to have a single entity that processes all the data at once. Furthermore, in a lot of these cases the parties participating in these computations don't want to reveal their own information, because its sensitive or because they don't want to share information with a lot of business value.\\
 A basic example is an anonymized voting. In most elections there is a third party that has to aggregate and count the votings made by the votings. For instance in germanys elections this is done by specific people counting a small group of votes and then forwarding the information. The other problem is that it has to be guaranteed that a vote is valid, meaning that the voter has the right to vote and is only voting one time. So if there would be a malicious person in the system, it would be easy for that person to figure out what vote a specific person made.\\
-ert
-
+Another use case is the exchange of medical data. Medical data of patients is highly confidential and shoudn't be publiced under n circumstances. But at the same time a lot of different hospitals or doctors have only the data from their small data set of local patients, and for making diagnosis for new patients it is helpful to compare the symptoms to the diagnosis of other doctors.\\
+Secure Multi-Party Computation(SMPC) is one possible solution for these use cases. It is a field of research that emerged in the last 30 years, and is gathering a lot of speed in the last years. 
+The basic problem is how to evaluate a common function in which multiple parties have different inputs to this function, without revealing the different inputs of the parties. Although there are a lot of theoretical solutions for this problem, real-world implementations are still not perfmorming on the desired level. So in the last years the research shifted more in the area on how to make the existant solutions performant enough while still guaranteeing a desired level of security.\\
+This paper's main focus will lay on SCALE-MAMBA, a system developed mainly by the KU Leuven, which is one of the frontrunners in SMPC and a system that combines a lot of research by different teams with the newest ongoing research to provide a platform with highly performant SMPC. Nevertheless, this paper will at first give a short history of SMPC and will try to explain the basic technologies of SMPC to the reader. It will compare SCALE-MAMBA to its predecessors and will also try to give a short comparision to other SMPC systems which use different approaches, especially considering the usability in different use cases. Ultimately, it will try to give an outlook what might be coming in the next years.\\
 
 
 
 a)	Motivation: 
--	There are a lot of computations that have to be done in a distributed environment in todays technologies and in the future
--	Not possible to have all the information in one place anymore
 -	Sometimes hard to know who to trust 
 -	Problem: want to compute something together but we don’t want to share our information
 -	A lot of use cases: number of distributed environments is climbing rapidly; for example see crypto currencies (distributed block chain; no one can do something alone, everyone relies on everyone else (or at least on a majority of the other participants)
--	A lot of research. Right now more theoretical than practical works; a lot of computational overhead
--	Scale-Mamba: 
-o	Developed by a research team of the KU Leuven
 o	Implements a lot of the theoretical foundations
 o	Crypto suit, end to end
 o	Possible to be safe against corruption with abort
 o	Good (compared to others) execution times
 o	Improvement of before existing technologies (SPDZ especially, and others)
-
-
-b)	Structure:
-This thesis will try to give an overview over Secure Multiparty Computation, especially focusing on Scale-Mamba and all the technologies it builds upon. Therefore, it will explain the basic technologies first in an abstracted manner and later go more into detail. 
+o	This thesis will try to give an overview over Secure Multiparty Computation, especially focusing on Scale-Mamba and all the technologies it builds upon. Therefore, it will explain the basic technologies first in an abstracted manner and later go more into detail. 
 
 
 
 
 \section{Cryptography Basics}\label{sec:basics}
-a)	Message authentication code (MAC)
-b)	Oblivious transfer (OT)
-c)	Homomorphic Encryption (HE)
-d)	Somewhat Homomorphic Encryption (SHE)
+
+Before diving deeper into SMPC, this section will shortly recap on cryptography basics that might be unknown to the reader. These basics are not solely used by SMPC, but nevertheless, play a huge role in a lot of protocols.
+
+\subsubsection{Message Authentification Codes}
+Message Authentification Codes (MACs),
+
+\subsubsection{Homomorphic Encryption}
+Homomorphic Encryption (HE),
+
+\subsubsection{Somewhat Homomorphic Encryption}
+Somewhat Homomorphic Encryption (SHE),
+
+
+
+
 //e)	Access structures?
 //f)	Monotone Span Programs (MSP) ?
 g)	FHE – fully homomorphic encryption?
