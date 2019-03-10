@@ -364,6 +364,14 @@
 \end{abstract}
 
 \section{Motivation and Introduction}\label{sec:intromoti}
+
+In todays world, and even more in the future, there are a lot of computations that have to be done in a distributed environment. Furthermore, in a lot of these cases the parties participating in the computation don't want to reveal their own information.\\
+A basic example is an anonymized voting. In most elections there is a third party that has to aggregate and count the votings made by the votings. For instance in germanys elections this is done by specific people counting a small group of votes and then forwarding the information. The other problem is that it has to be guaranteed that a vote is valid, meaning that the voter has the right to vote and is only voting one time. So if there would be a malicious person in the system, it would be easy for that person to figure out what vote a specific person made.\\
+ert
+
+
+
+
 a)	Motivation: 
 -	There are a lot of computations that have to be done in a distributed environment in todays technologies and in the future
 -	Not possible to have all the information in one place anymore
@@ -531,9 +539,9 @@ Additive Shares: Innputs are shared via an additive secret sharing scheme.
 Scale-mamba: fully integrated offline/online phase
 These random triples are further used in the online phase where parties interact by broadcasting data whenever a value is reveale
 Privacy and correctness are then guaranteed by authenticated shared values with information-theoretic MACs4 on top of them.
-To open a valueJxK, all players Pi broadcast their shares x(i), commit and then open m(i) − x · ∆(i). Afterwards they check if the sum of the latter is equal to zero. One can check multiple values at once by taking a random linear 4 These are not be confused with the more common symmetric-key MACs.
+To open a valueJxK, all players Pi broadcast their shares x(i), commit and then open m(i)- x* delta(i). Afterwards they check if the sum of the latter is equal to zero. One can check multiple values at once by taking a random linear 4 These are not be confused with the more common symmetric-key MACs.
 7
-combination of m(i)−x·∆(i) exactly as in the MAC Check protocol in Figure 5 in Section 3. 
+combination of m(i)-x*delta(i) exactly as in the MAC Check protocol in Figure 5 in Section 3. 
 
 
 We make all our calculations over a finite field F over a prime p. The field contains p elements, 0 to p-1, and all results are put through modulo p so they are still in F.
@@ -565,7 +573,7 @@ Beaver triples are a tuple of three numbers (a,b,c), a,b,c Element F, with a and
 SPDZ
 For the offline phase there is a global public key a global secret key. Every party has a share Delta of this secret key, and there is a distributed decryption protocol, so that the parties decrypt together and every party gets a secret sharing of the cleartext. (Look into more detail in RETSHARE in DPSZ12 by DAMGARD)
 
-For passive security only, the parties can simply broadcast encryptions of randomly sampled shares ai,bi and their share of the MAC key ∆i. These encryptions can be added up and multiplied to produce encryptions of (a·b,a· ∆,b·∆,a·b·∆) if the encryption allows multiplicative depth two. Distributed decryption then allows the parties to receive an additive secret sharing of each of those values, which already is enough for a triple. Since achieving a higher multiplicative depth is relatively expensive, SPDZ only uses a scheme with multiplicative depth one and extends the distributed decryption to produce a fresh encryption of a·b, which then can be multiplied with the encryption of ∆. In the context of an active adversary there are two main issues: First, the ciphertexts input by corrupted parties have to be correct and independent of the honest parties’ ciphertexts. This is where zero-knowledge is applied to prove that certain values lie within a certain bound. Second, the distributed decryption protocol actually allows the adversary to add an error - that is, the parties can end up with a triple (a,b,ab + e) with e known to the adversary and where the MACs have additional errors as well. While an error on a MAC will make the MAC check fail in any case, the problem of an incorrect triple requires more attention. This is where the so-called SPDZ sacriﬁce comes in. Imagine two triples with potential errors (JaK,JbK,Jab + eK) and (Ja0K,Jb0K,Ja0b0 + e0K), and let t be a random ﬁeld element. Then, t·(ab + e)−(a0b0 + e0)−(ta−a0)·b−a0·(b−b)0 = tab + te−a0b0−e0−tab−a0b−a0b + a0b0 = te−e0, which is 0 with probability negligible in sec for a ﬁeld of size at least 2sec if either e 6= 0 or e0 6= 0. The use of MACs means that the adversary cannot forge the result of this computation, hence any error will be caught with overwhelming probability since with the additive secret sharing of our triples the parties have
+For passive security only, the parties can simply broadcast encryptions of randomly sampled shares ai,bi and their share of the MAC key deltai. These encryptions can be added up and multiplied to produce encryptions of (a*b,a* delta,b*delta,a*b*delta) if the encryption allows multiplicative depth two. Distributed decryption then allows the parties to receive an additive secret sharing of each of those values, which already is enough for a triple. Since achieving a higher multiplicative depth is relatively expensive, SPDZ only uses a scheme with multiplicative depth one and extends the distributed decryption to produce a fresh encryption of a·b, which then can be multiplied with the encryption of delta. In the context of an active adversary there are two main issues: First, the ciphertexts input by corrupted parties have to be correct and independent of the honest parties’ ciphertexts. This is where zero-knowledge is applied to prove that certain values lie within a certain bound. Second, the distributed decryption protocol actually allows the adversary to add an error - that is, the parties can end up with a triple (a,b,ab + e) with e known to the adversary and where the MACs have additional errors as well. While an error on a MAC will make the MAC check fail in any case, the problem of an incorrect triple requires more attention. This is where the so-called SPDZ sacrifice comes in. Imagine two triples with potential errors (JaK,JbK,Jab + eK) and (Ja0K,Jb0K,Ja0b0 + e0K), and let t be a random field element. Then, t*(ab + e)-(a0b0 + e0)-(ta-a0)*b-a0*(b-b)0 = tab + te-a0b0-e0-tab-a0b-a0b + a0b0 = te-e0, which is 0 with probability negligible in sec for a field of size at least 2sec if either e 6= 0 or e0 6= 0. The use of MACs means that the adversary cannot forge the result of this computation, hence any error will be caught with overwhelming probability since with the additive secret sharing of our triples the parties have
 
 
 
@@ -582,7 +590,7 @@ In the many iterations of the SPDZ like protocols, there were different ways to 
 In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly, or atleast that they dont divert too much from the expected result.
 
 
-ZPoKP are a technique that was introduced  in 1985 by (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.419.8132&rep=rep1&type=pdf). The idea is that one party can prove to another party that it knows a specific value x, without revealing the value of x to the other person, nor revealing any other knowledge about the value. 
+ZPoKP are a technique that was introduced  in 1985 by (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.419.8132\&rep=rep1\&type=pdf). The idea is that one party can prove to another party that it knows a specific value x, without revealing the value of x to the other person, nor revealing any other knowledge about the value. 
 The ZPoKP used in SPDZ is a Schnorr-like protocol (these prtocols ........).
 
 Assumed Alice(in this scenario called the prover) wants to prove to Bob (the verifier) that she knows x in a Field F, such that f(x)=y. It is as well assumed, that f is homomorphic with respect to the field operations in F.
@@ -605,7 +613,7 @@ So under the assumption that Alice chooses a new random s each time the protcol 
 
 
 
-The semi-homomorphic solution works roughly as follows: One party sends an encryption Enc(a) of their input under their own public key to the other, which replies by C := b·Enc(a)−Enc(cB), where b denotes the second party’s input, and cB is chosen at random. Any semi-homomorphic encryption scheme allows the multiplication of a known value with a ciphertext, hence the decryption of the second message is cA := b·a−cB, which makes (cA,cB) an additive secret sharing of a·b. Here the noise of C might reveal information about b but this can be mitigated by adding random noise from an interval that is sec larger than the maximum noise of C. This technique, sometimes called “drowning”, is also used in the distributed decryption of SPDZ. 
+The semi-homomorphic solution works roughly as follows: One party sends an encryption Enc(a) of their input under their own public key to the other, which replies by C := b*Enc(a)-Enc(cB), where b denotes the second party’s input, and cB is chosen at random. Any semi-homomorphic encryption scheme allows the multiplication of a known value with a ciphertext, hence the decryption of the second message is cA := b*a-cB, which makes (cA,cB) an additive secret sharing of a*b. Here the noise of C might reveal information about b but this can be mitigated by adding random noise from an interval that is sec larger than the maximum noise of C. This technique, sometimes called “drowning”, is also used in the distributed decryption of SPDZ. 
 
 
 
@@ -624,20 +632,24 @@ SoundsnessSlack? protocols based on this, because the protocols which prove the 
 
 But it still isn't as efficient and secure as it could be, because the Sounds ness security SndSec is related to the 
 
-The zero-knowledge security ZK sec is related to a statistical distance, whereas the soundness security Snd sec is related to the probability that an adversary can cheat in an interactive protocol. A low value for Snd sec is rather acceptable than a low value for ZK sec. 2. The practical complexity of the protocol, in particular the memory and computational consumption, is dominated by Snd sec. It turns out that ZK sec has very virtually no eﬀect on the overall execution time of the oﬄine phase, for large values of p.
+The zero-knowledge security ZK sec is related to a statistical distance, whereas the soundness security Snd sec is related to the probability that an adversary can cheat in an interactive protocol. A low value for Snd sec is rather acceptable than a low value for ZK sec. 2. The practical complexity of the protocol, in particular the memory and computational consumption, is dominated by Snd sec. It turns out that ZK sec has very virtually no effect on the overall execution time of the offline phase, for large values of p.
 
 Therefore, in the current iteration of Scale-Mamba an improved version of the HighGear protocol is implemented.
 
 
 
-First: compute SPDZ style MACs; additive secret sharing of the product of a value, and of a global MAC key, which is secret shared additevly as well
+First: compute SPDZ style MACs; additive secret sharing of the product of a value, and of a global MAC key, which is secret shared additevly as well (With ZPoKP)
+In the authentication protocol, we make use of the fact that changing values are always multiplied with the same share of the MAC key
 
 Multiplication triple generation: 2 party protocol; --> Reduction of communication channels(link paper); reduction of most part to Q2; this enables us to not have a complete network of communication channels for most of the protocol (offline phase)
+
+Section3.3 Overdrive: Triple Generation
+ In the triple generation, however, both values change from triple to triple, thus we rely on the SPDZ sacrifice there. For this, we use a trick used by Keller et al. that reduces the complexity by generating a pair of triples ((a,b,ab),(a0,b,a0b)) for the sacrifice instead of two independent triples. 
 
 
 
 \subsubsection{Online Phase}
-In the online phase the main task is to evaluate an arbitrary circuit with secret inputs. After the parties have provided their inputs using the Input command, the next step is to perform addition and multiplication between authenticated shared values. Since the addition is linear, it can be done via local computation. However multiplying two valuesJxK,JyKrequires some interaction between the parties. To computeJx·yKa fresh random tripleJaK,JbK,JcK=JabKhas to be available for Beaver’s trick [Bea92]. It works by openingJx−aKandJx−bKto get  and ρ respectively. Then the authenticated product can be obtained by settingJx·yK←JcK+ JbK+ ρJaK+ ·ρ
+In the online phase the main task is to evaluate an arbitrary circuit with secret inputs. After the parties have provided their inputs using the Input command, the next step is to perform addition and multiplication between authenticated shared values. Since the addition is linear, it can be done via local computation. However multiplying two valuesJxK,JyKrequires some interaction between the parties. To computeJx*yKa fresh random tripleJaK,JbK,JcK=JabKhas to be available for Beaver’s trick [Bea92]. It works by opening XXXXFORMULAXXX  respectively. Then the authenticated product can be obtained by setting XXXXFORMULAXXX
 
 
 
@@ -646,7 +658,7 @@ In the online phase the main task is to evaluate an arbitrary circuit with secre
 a,b, c=ab
 1.e = Open([x+a]
 )2.d = Open([y+b])
-3.[xy] = [c]+e[y] + d[x] –ed
+3.[xy] = [c]+e[y] + d[x] -ed
 
 
 
@@ -687,7 +699,7 @@ o 	Offline phase based on Overdrive protocols (before Mascot)
 -	Online phase:
 o	Secret sharing
 
-SPDZ  Secret  Sharing.This  SPDZ  protocol  [15]  processes  data  using  an  authenticated  secret  sharingscheme defined over a finite fieldFp, wherepis prime. The secret sharing scheme is defined as follows: EachpartyPiholds a shareαi∈Fpof a global MAC keyα=∑i∈[n]αi. A data elementx∈Fpis held in secretshared form as a tuple{xi,γi}i∈[n], such thatx=∑ixiand∑γi=α·x. We denote a valuexheld in such asecret shared form as〈x〉. The main goal of the SPDZ offline phase is to produce random triples (〈a〉,〈b〉,〈c〉)such thatc=a·b. If we wish to denote the specific value on whichγiis a MAC share then we writeγi[x].
+SPDZ  Secret  Sharing.This  SPDZ  protocol  [15]  processes  data  using  an  authenticated  secret  sharingscheme defined over a finite fieldFp, wherepis prime. The secret sharing scheme is defined as follows: EachpartyPiholds a share XXXX a global MAC key XXXX. A data element XXXX held in secretshared form as a tuple  xy el[n], such that XXX. We denote a valuexheld in such asecret shared form as x. The main goal of the SPDZ offline phase is to produce random triples (abc)such thatc=a*b. If we wish to denote the specific value on which yiis a MAC share then we write yi[x].
 
 o	Sacrifice of triples to check calculation results
 o	Check for adversaries (MAC?)
