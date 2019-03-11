@@ -703,32 +703,64 @@ We assume following preliminaries are given after the execution of the offline p
 \begin{enumerate}
 \item There are \(n\) parties \(P_1,...,P_n\)
 \item There is a given function \(f(a_1,...,a_m)\) which the parties want to evaluate together. The inputs are secret, and each input is hold by exactly one party.
-\item 
+\item There is a global MAC key \( \alpha\) that is secret to every party and additively shared, so that every party \( P_i\) has a share  \( \alpha_i\) so that  \( \alpha=\alpha_1+...+\alpha_n\)
 
 \end{enumerate}
 
 Following, it is going to be demonstrated, how addition and multiplication are done in this environment. This is sufficient, because a group(XXX???) with addition and multiplication is already touring complete, so there is no need for any other operation. (ADD LINK HERE)\\
 
 
+Sharing of values:\\
+After sharing a value \( a \in F_p\), it is represented as following tuple:\\
+$\langle a\rangle=(\delta_a, (a_1,...,a_n),(\gamma (a)_1,...,\gamma (a)_n))$
+\\With:
+\begin{itemize}
+\item $ a=(a_1+...+a_n)$
+\item $ \gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))=\alpha(a+\delta)$
+\item Every party \( P_i\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
+
+\end{itemize}
+
+
+
 
 \subsubsection{Addition}
-Assumed there are two values \( a\) and \( b\) which should be added together and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has an additive share of \( a\) and an additive share of \( b\). 
+Assumed there are two values \( a\) and \( b\) which should be added together and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has a share \( \langle a_i\rangle\) and a share \( \langle b_i\rangle\).\\
 
-Then every party \( P_i\) adds up their local shares \( a_i\) and  \( b_i\). Now every party has a share  \( c_i=a_i+b_i\). Because of the additive homomorphic encryption this is possible.
-Correctness: \( c=a+b=(a_1+...+a_n)+( b_1+...+b_n)=(a_1+b_1)+...+(a_n+b_n)=c_1+...+c_n\)
-Therefore, c is now additvely shared between the parties and it can be used for other computations like any other shared secret.
+Then every party \( P_i\) adds up their local shares, so that:\\
+$$\langle c_i\rangle=\langle a_i\rangle+\langle b_i\rangle=((\delta_a+\delta_b),(a_i+b_i),\gamma (a)_i+\gamma (b)_i))$$
+Correctness: Afterwards, \( c=a+b\) is obviously additively shared between the parties and can be used for further computations.\\
+
+(Maybe go more in detail about correctness)
 
 
 \subsubsection{Addition with constant}
-Only one party adds constant c to a, for example a1. partial c is added to all the mac keys (c*alpha)
+Adding a public constant is really simple in this representation. Because \( \gamma (a)=\alpha(a+\delta)\), adding a constant \(c\) to a additively shared value \(a\) is done by:\\
+$$\langle a\rangle+c=(\delta-c,(a_1+c,a_2,...,a_n),,(\gamma (a)_1,...,\gamma (a)_n)$$
+Correctness: It can be seen, that the constant is only added to one shared value and subtracted from \( \delta\). Because of that, \( \alpha(a+\delta)\) stays the same, so the same shared MAC values like before can be used. So \(a+c\) is also properly additively shared.\\
 
-Correctness: \( a+c=(a_1+...+a_n)+c=((a_1+c)+a_2+...+a_n)\)
-
-
+\subsubsection{Multiplication with constant}
+Multiplicating with a public constant is as well really simple and can also be done by each party invdividually. It is defined as:\\
+$$c*\langle a\rangle=\langle c*a\rangle=(c*\delta,(c*a_1,...,c*a_n),,(c*\gamma (a)_1,...,c*\gamma (a)_n)$$
+Correctness:(TO BE DONE\\
 
 \subsubsection{Multiplication}
-Multiplication is the only operation, except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
-Assumed there are two values \( a\) and \( b\) which should be added together and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has an additive share of \( a\) and an additive share of \( b\). 
+Are triples additively shared as well?
+
+Multiplication is the only operation,except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
+Assumed there are two values \( a\) and \( b\) which should be multipled with each other. Naturally, each party has the shares \(\langle a_i\rangle\) and \(\langle b_i\rangle\).\\
+For each multiplication operation, we need one of the Beaver triples \( (x_1,y_1,z_1)\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (x_2,y_2,z_2)\) in a procedure called sacrificing it. In SPDZ both triples are completly unrelated to each other, and the sacrificing is done as follows:\\
+
+\begin{enumerate}
+\item Choose a random variable \(t\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n)\
+\item 
+\item 
+\item 
+
+
+\end{enumerate}
+
+SACRIFE
 
 
 \subsubsection{Verifying Correctness}
