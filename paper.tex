@@ -404,11 +404,17 @@ The correctness can be easily seen: \(\forall K: \text{VER}(K,m,\text{MAC}(K,m))
 Continuing, we will not really care what exact underlying algorithms are used, we will just assume that the MACs used are indistingushiable against chosen-plaintext attack, i.e. an adversary which is bounded by polynomial time and which doesn't know the key, cannot get any information about the key even if he inputs as many different texts as he wants, chosen by himself,  into the MAC funtion. MAC functions which fulfill these critierias and are commonly used are for instance A, B and C.\\
 
 
+In SCALE-MAMBA really simple MACs are used. We assume that a mac is 
+
+Do we assume , that we use MAC code as multiplication, division? i.e. distributed MAC 
+
+unconditionally  secure  MACs 
+
 
 \subsection{Homomorphic Encryption}
 Encryption as a basic concept is simple. Similiar to MACs, a tupel (E,D) of algorithms is needed.\\
 \begin{itemize}
-\item The enncryption algorithm\(\text{E}(K,m)\rightarrow c\) takes a key \(K\) and a message \(m\) and outputs a cyphertext \(t\) that is the encryption of the message \(m\)\\
+\item The enncryption algorithm \(\text{E}(K,m)\rightarrow c\) takes a key \(K\) and a message \(m\) and outputs a cyphertext \(t\) that is the encryption of the message \(m\)\\
 \item The decryption algorithm \(\text{D}(K,c)\rightarrow m\) takes a key \(K\) and a cyphertext \(m\) and outputs the decrypted message \(m\), assuming c was not modified\\
 \end{itemize}
 Alternatively, in a public key setting, the key for encryption is public and there is a different key for decryption that is privat.\\
@@ -679,10 +685,66 @@ Sacrifice of triples to check correctness
 
 
 \subsubsection{Online Phase}
+
+
+
+We  will  use  unconditionally  secure  MACs  to  protect  secret  values  from  beingmanipulated by an active adversary. 
+global key Achosenrandomly inFpk, and for each secret valuea, we will shareaadditively among the players, and wealso secret-share a MAC Aa
+
+
+\subsubsection{Preliminaries}
+
+
+Now we assume that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So this is the heart of the system, the part where the real computatiuon is executed. 
+It is important to note, that the online phase is nearly perfectly optimized when assuming the offline phase was carried out succesfully. The online phase has a runtime complexity in O(n), and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ.\\
+
+
+We assume following preliminaries are given after the execution of the offline phase:\\
+\begin{enumerate}
+\item There are \(n\) parties \(P_1,...,P_n\)
+\item There is a given function \(f(a_1,...,a_m)\) which the parties want to evaluate together. The inputs are secret, and each input is hold by exactly one party.
+\item 
+
+\end{enumerate}
+
+Following, it is going to be demonstrated, how addition and multiplication are done in this environment. This is sufficient, because a group(XXX???) with addition and multiplication is already touring complete, so there is no need for any other operation. (ADD LINK HERE)\\
+
+
+
+\subsubsection{Addition}
+Assumed there are two values \( a\) and \( b\) which should be added together and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has an additive share of \( a\) and an additive share of \( b\). 
+
+Then every party \( P_i\) adds up their local shares \( a_i\) and  \( b_i\). Now every party has a share  \( c_i=a_i+b_i\). Because of the additive homomorphic encryption this is possible.
+Correctness: \( c=a+b=(a_1+...+a_n)+( b_1+...+b_n)=(a_1+b_1)+...+(a_n+b_n)=c_1+...+c_n\)
+Therefore, c is now additvely shared between the parties and it can be used for other computations like any other shared secret.
+
+
+\subsubsection{Addition with constant}
+Only one party adds constant c to a, for example a1. partial c is added to all the mac keys (c*alpha)
+
+Correctness: \( a+c=(a_1+...+a_n)+c=((a_1+c)+a_2+...+a_n)\)
+
+
+
+\subsubsection{Multiplication}
+Multiplication is the only operation, except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
+Assumed there are two values \( a\) and \( b\) which should be added together and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has an additive share of \( a\) and an additive share of \( b\). 
+
+
+\subsubsection{Verifying Correctness}
+At the end of the computation, we have to find out the total calculated result.
+
+
+Now that we have the final result, we also have to check the 
+
+MAC is only opened at the end, so it can be found out before by an adversary. Therefore in this phase we can, if the value is correct, expect that the mac was not modified by an adversary and therefore the complete computation was not modified.
+
+
+
 In the online phase the main task is to evaluate an arbitrary circuit with secret inputs. After the parties have provided their inputs using the Input command, the next step is to perform addition and multiplication between authenticated shared values. Since the addition is linear, it can be done via local computation. However multiplying two valuesJxK,JyKrequires some interaction between the parties. To computeJx*yKa fresh random tripleJaK,JbK,JcK=JabKhas to be available for Beaver’s trick [Bea92]. It works by opening XXXXFORMULAXXX  respectively. Then the authenticated product can be obtained by setting XXXXFORMULAXXX
 
 
-Now we assume that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So we assume that every party \(i\) holds an input \(a_i\)
+So we assume that every party \(i\) holds an input \(a_i\)
 
 
 Additive shared: every party has part ai of a
