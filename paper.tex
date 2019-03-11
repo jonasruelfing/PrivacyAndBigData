@@ -696,7 +696,7 @@ global key Achosenrandomly inFpk, and for each secret valuea, we will shareaaddi
 
 
 Now we assume that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So this is the heart of the system, the part where the real computatiuon is executed. 
-It is important to note, that the online phase is nearly perfectly optimized when assuming the offline phase was carried out succesfully. The online phase has a runtime complexity in O(n), and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ.\\
+It is important to note, that the online phase is nearly perfectly optimized when assuming the offline phase was carried out succesfully. The online phase has a runtime complexity in O(n), and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ ~\cite{cryptoeprint:2011:535}.\\
 
 
 We assume following preliminaries are given after the execution of the offline phase:\\
@@ -748,19 +748,26 @@ Correctness:(TO BE DONE\\
 Are triples additively shared as well?
 
 Multiplication is the only operation,except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
-Assumed there are two values \( a\) and \( b\) which should be multipled with each other. Naturally, each party has the shares \(\langle a_i\rangle\) and \(\langle b_i\rangle\).\\
-For each multiplication operation, we need one of the Beaver triples \( (x_1,y_1,z_1)\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (x_2,y_2,z_2)\) in a procedure called sacrificing it. In SPDZ both triples are completly unrelated to each other, and the sacrificing is done as follows:\\
+Assumed there are two values \( a\) and \( b\) which should be multipled with each other. Naturally, each party has the shares \(\langle a_i\rangle \) and \(\langle b_i\rangle \).\\
+For each multiplication operation, we need one of the Beaver triples \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing it. Both triples are additively shared between all parties like the input values. In SPDZ both triples are completly unrelated to each other, and the sacrificing is done as follows:\\
 
 \begin{enumerate}
-\item Choose a random variable \(t\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n)\
-\item 
-\item 
-\item 
-
-
+\item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n)\).
+\item The parties calculate  \( p=t*\langle x_1 \rangle - \langle x_2 \rangle \) and \( \sigma=\langle y_1 \rangle -  \langle y_2 \rangle \) and partially open the results afterwards
+\item The parties calculate \(\phi = t * \langle z_1 \rangle\ - \langle z_2 \rangle - \sigma * \langle x_2 \rangle - p * \langle y_2 \rangle - \sigma * p)\) and the partially open the result
+\item If \( \phi \) is 0 then the triples are ok and it is proceeded with \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\). Otherwise the system detected a malicious adversary and it aborts.\\
 \end{enumerate}
+Correctness: If we simplify \( \phi \), we can see that every term disappears (given that the triples are proper triples):
+$$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
+$$ = t*(z_1 - x_1*y_2+x_1*y_2 -x_1*y_1) + y_1*x_2 - x_2*y_1+ x_2*y_2 - z_2 + x_2*y_2 -  x_2*y_2$$
+$$= t* (z_1 - x_1*y_1) + x_2*y_2 - z_2 $$
+So we can see that \( \phi = 0 \Leftrightarrow x_1*y_1 = z_1 \and x_2*y_2=z_2 \), so we know the triple is correct. \\
+In this process we didn't reveal the triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\), so now we can use it for the multiplication knowing that one the one hand it is still secretly shared and unknown and on the other hand that it was not modified by an adversary.\\
 
-SACRIFE
+
+
+
+There is a small improvement in SCALE-MAMBA compared to SPDZ regarding the triple generation that was added later in ~\cite{PAPER WITH TRIPLE}. The idea is to not sacrifice a random second triple, but a similiar triple ....
 
 
 \subsubsection{Verifying Correctness}
@@ -952,8 +959,8 @@ Finally, a conclusion is drawn and outlook on future work is made (\cref{sec:out
 \section{Related Work}
 \label{sec:relatedwork}
 
-Winery~\cite{Winery} is a graphical \commentontext{modeling}{modeling with one \qq{l}, because of AE} tool.
-The whole idea of TOSCA is explained by \citet{Binz2009}.
+is a graphical \commentontext{modeling}{modeling with one \qq{l}, because of AE} tool.
+
 
 \section{LaTeX Hints}
 \label{sec:hints}
@@ -961,7 +968,7 @@ The whole idea of TOSCA is explained by \citet{Binz2009}.
 \begin{figure}
   \centering
   \includegraphics[width=.8\textwidth]{example-image-golden}
-  \caption{Simple Figure. \cite[based on][]{mwe}}
+  \caption{Simple Figure. }
   \label{fig:simple}
 \end{figure}
 
