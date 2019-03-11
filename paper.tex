@@ -793,57 +793,19 @@ So, as we can see, the calculations are correct and at the same time no informat
 At the end of the computation, we have to find out the total calculated result. After all computations were executed, every party has a share of the final result \( r_i\), a share of the MAC value \( \gamma(r)_i)\) of the final result and a share of the global MAC key \( \alpha_i \). The verification is done as follows:
 
 \begin{enumerate}
-\item Every party  opens their share \ (r_i\) and their share of the MAC value \( \gamma(r)_i) \)
-\item Every party computes \( r = \sum{i=1}^n r_i \) 
-\item Every party computes  \( \gamma(r)_i = \sum{i=1}^n \gamma(r)_i \)
+\item Every party  opens their share \( r_i\) and their share of the MAC value \( \gamma(r)_i) \)
+\item Every party computes \( r = \sum_{i=1}^n r_i \) 
+\item Every party computes  \( \gamma(r)_i = \sum_{i=1}^n \gamma(r)_i \)
 \item Every party computes  \( \sigma_i =  \gamma(r)_i - \alpha_i * r\) and shares it to all the other parties
-\item Every party computes \(\sum{i=1}^n \sigma_i \) and checks if it is \(0\). If it is  \(0\), the computation was correct.
+\item Every party computes \( \sum_{i=1}^n \sigma_i \) and checks if it is \(0\). If it is  \(0\), the computation was correct.
 \end{enumerate}
 Correctness: 
-$$ \sum{i=1}^n \sigma_i = n * \gamma(r) - n * \sum{i=1}^n r  \sum{i=1}_n \alpha_i  $$
+$$ \sum_{i=1}^n \sigma_i =  \sum_{i=1}^n  \gamma(r)_i - \alpha_i * r $$
+$$=  \sum_{i=1}^n  \gamma(r)_i -  \sum_{i=1}^n  \alpha_i * r $$
 
- Now, every party  opens their share \(r_i\) and of the MAC value  and every party computes \(r = \sum{i=1}^n r_i \) for themselves.\\
-
-To verify the correctness of this result every party also computes \( \gamma(r) = \sum{i=1}^n \gamma(r)_i \)
-
-
-Now that we have the final result, we also have to check the 
-
-MAC is only opened at the end, so it can be found out before by an adversary. Therefore in this phase we can, if the value is correct, expect that the mac was not modified by an adversary and therefore the complete computation was not modified.
+If the calculations were correct, the MAC was shared properly and not modified, and the MAC values were not modified, then the difference between both sums will be 0. If it is not 0, the protocol detects that there is a malicious adversary and aborts.\\
 
 
-
-In the online phase the main task is to evaluate an arbitrary circuit with secret inputs. After the parties have provided their inputs using the Input command, the next step is to perform addition and multiplication between authenticated shared values. Since the addition is linear, it can be done via local computation. However multiplying two valuesJxK,JyKrequires some interaction between the parties. To computeJx*yKa fresh random tripleJaK,JbK,JcK=JabKhas to be available for Beaver’s trick [Bea92]. It works by opening XXXXFORMULAXXX  respectively. Then the authenticated product can be obtained by setting XXXXFORMULAXXX
-
-
-So we assume that every party \(i\) holds an input \(a_i\)
-
-
-Additive shared: every party has part ai of a
-MAC: mac key is shared as well
-
-
-Addition: Easy, just add up shares
-Multiplication by scalar: easy
-Addition by scalar: easy
-Multiplication: 
-
-
-
-We assume following preliminaries for our online phase:
-\begin{enumerate}
-\item We have \(n\) parties \(P_1,...,P_n\) 
-
-\end{enumerate}
-
-
-
-
-\subsubsection{Sacrificing}
-a,b, c=ab
-1.e = Open([x+a]
-)2.d = Open([y+b])
-3.[xy] = [c]+e[y] + d[x] -ed
 
 
 
