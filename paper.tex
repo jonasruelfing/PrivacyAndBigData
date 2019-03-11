@@ -745,18 +745,23 @@ $$c*\langle a\rangle=\langle c*a\rangle=(c*\delta,(c*a_1,...,c*a_n),,(c*\gamma (
 Correctness:(TO BE DONE\\
 
 \subsubsection{Multiplication}
-Are triples additively shared as well?
 
 Multiplication is the only operation,except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
 Assumed there are two values \( a\) and \( b\) which should be multipled with each other. Naturally, each party has the shares \(\langle a_i\rangle \) and \(\langle b_i\rangle \).\\
 For each multiplication operation, we need one of the Beaver triples \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing it. Both triples are additively shared between all parties like the input values. In SPDZ both triples are completly unrelated to each other, and the sacrificing is done as follows:\\
 
+
 \begin{enumerate}
 \item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n)\).
 \item The parties calculate  \( p=t*\langle x_1 \rangle - \langle x_2 \rangle \) and \( \sigma=\langle y_1 \rangle -  \langle y_2 \rangle \) and partially open the results afterwards
-\item The parties calculate \(\phi = t * \langle z_1 \rangle\ - \langle z_2 \rangle - \sigma * \langle x_2 \rangle - p * \langle y_2 \rangle - \sigma * p)\) and the partially open the result
+\item The parties calculate \(\phi = t * \langle z_1 \rangle\ - \langle z_2 \rangle - \sigma * \langle x_2 \rangle - p * \langle y_2 \rangle - \sigma * p)\) and then partially open the result
 \item If \( \phi \) is 0 then the triples are ok and it is proceeded with \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\). Otherwise the system detected a malicious adversary and it aborts.\\
 \end{enumerate}
+
+
+Partially opening  of values: All players send their respective shares of a value, but not the MAC value, to one chosen party \(P_i\) which summs up all values and then broadcasts the result. In praxis this party is changing for every opening to balance the workload.\\
+Fully opening of values: In this case all players broadcast their respective shares and the respective MACs to all players, so all players can verify the result.\\
+
 Correctness: If we simplify \( \phi \), we can see that every term disappears (given that the triples are proper triples):
 $$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
 $$ = t*(z_1 - x_1*y_2+x_1*y_2 -x_1*y_1) + y_1*x_2 - x_2*y_1+ x_2*y_2 - z_2 + x_2*y_2 -  x_2*y_2$$
@@ -770,8 +775,36 @@ In this process we didn't reveal the triple \( (\langle x_1 \rangle ,\langle y_1
 There is a small improvement in SCALE-MAMBA compared to SPDZ regarding the triple generation that was added later in ~\cite{PAPER WITH TRIPLE}. The idea is to not sacrifice a random second triple, but a similiar triple ....
 
 
+Now in the next step the multiplication of \(\langle a \rangle \) and \(\langle b \rangle \) is executed with the help of the triple.
+\begin{enumerate}
+\item The parties calculate \( \epsilon = \langle a \rangle - \langle x_1 \rangle \) and partially open it
+\item The parties calculate \( \delta = \langle b \rangle - \langle y_1 \rangle \) and partially open it
+\item The parties calculate \( \langle c \rangle \langle z_1 \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta \) 
+\end{enumerate}
+Correctness: 
+$$  \langle a \rangle * \langle b \rangle = \langle (a-x_1+x_1) \rangle * \langle (b-y_1+y_1) \rangle$$
+$$ = ( \epsilon  +\langle  x_1 \rangle ) * ( \delta  + \langle y_1 \rangle )$$
+$$ = \langle x_1 \rangle * \langle y_1 \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta =  \langle c \rangle $$
+
+So, as we can see, the calculations are correct and at the same time no information of \(\langle a \rangle \) or \(\langle b \rangle \) was revealed.\\
+
+
 \subsubsection{Verifying Correctness}
-At the end of the computation, we have to find out the total calculated result.
+At the end of the computation, we have to find out the total calculated result. After all computations were executed, every party has a share of the final result \( r_i\), a share of the MAC value \( \gamma(r)_i)\) of the final result and a share of the global MAC key \( \alpha_i \). The verification is done as follows:
+
+\begin{enumerate}
+\item Every party  opens their share \ (r_i\) and their share of the MAC value \( \gamma(r)_i) \)
+\item Every party computes \( r = \sum{i=1}^n r_i \) 
+\item Every party computes  \( \gamma(r)_i = \sum{i=1}^n \gamma(r)_i \)
+\item Every party computes  \( \sigma_i =  \gamma(r)_i - \alpha_i * r\) and shares it to all the other parties
+\item Every party computes \(\sum{i=1}^n \sigma_i \) and checks if it is \(0\). If it is  \(0\), the computation was correct.
+\end{enumerate}
+Correctness: 
+$$ \sum{i=1}^n \sigma_i = n * \gamma(r) - n * \sum{i=1}^n r  \sum{i=1}_n \alpha_i  $$
+
+ Now, every party  opens their share \(r_i\) and of the MAC value  and every party computes \(r = \sum{i=1}^n r_i \) for themselves.\\
+
+To verify the correctness of this result every party also computes \( \gamma(r) = \sum{i=1}^n \gamma(r)_i \)
 
 
 Now that we have the final result, we also have to check the 
