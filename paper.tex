@@ -401,14 +401,12 @@ For using MACs we need a tupel of two algorithms \((\text{MAC},\text{VER})\):\\
 \end{itemize}
 The correctness can be easily seen: \(\forall K: \text{VER}(K,m,\text{MAC}(K,m))=1\)\\
 
-Continuing, we will not really care what exact underlying algorithms are used, we will just assume that the MACs used are indistingushiable against chosen-plaintext attack, i.e. an adversary which is bounded by polynomial time and which doesn't know the key, cannot get any information about the key even if he inputs as many different texts as he wants, chosen by himself,  into the MAC funtion. MAC functions which fulfill these critierias and are commonly used are for instance A, B and C.\\
 
+In SCALE-MAMBA really simple MACs are used. We assume that we have a MAC key \( \alpha \). Then the MAC algorithm used is following:\\
+$$\text{MAC}(\alpha,m)\rightarrow \alpha * m$$ 
+$$\text{VER}(\alpha,m,t)\rightarrow (1 \Leftrightarrow t = \alpha*m) $$ 
 
-In SCALE-MAMBA really simple MACs are used. We assume that a mac is 
-
-Do we assume , that we use MAC code as multiplication, division? i.e. distributed MAC 
-
-unconditionally  secure  MACs 
+These algorithm has the disadvantage of high storage complexity, but therefore it doesn't take a long time to calculate and it is possible to get the original message with just having the key and the tag. This is a property that is used for an advantage later on in the protocol.\\
 
 
 \subsection{Homomorphic Encryption}
@@ -444,9 +442,6 @@ While this adversary also wants to gain all the information, he is not obeying t
 It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value.
 
 
-Maybe move this behind the basic introduction of SMPC? Some parts like access structures 
-
-
 
 \section{SMPC Basics and History}\label{sec:smpc}
 \subsection{Beginnings}
@@ -455,28 +450,22 @@ These explorations lead to a group of basic protocols which established the area
  Now we will take a short look on the two most famous of these protocols, which both were the basis for a whole family of algorithms established in the years to follow until today.
 
 \subsection{Yaos Garbled Circuit}
+There are typically two groups of SMPC protocols, in which most of the protocols can be categorized. One is based on garbled circuits which were first introduced by Yao in 1986 ~\cite{4568207}. The basic idea is, that, in a two party setting, one party, Alice, garbles the boolean circuit that has to be evaluated and sends it to the second party, Bob. Bob uses his own input, Alice's encrypted input and the garbled circuit to evaluate the circuit in an ecnrypted way. At the end they exchange the results and can compute the result this way. 
 
-Most MPC protocols fall into one of two broad categories: garbled circuits,
-and linear-secret-sharing-scheme-based (LSSS-based) MPC. The garbled-circuit
-approach, which began with the work of Yao [38], involves some collection of
-parties garbling" a circuit to conceal the internal circuit evaluations, and then
-later a single party or a collection of parties jointly evaluating the garbled circuit.
-
- 
 \subsection{Shamirs Secret Sharing Scheme}
+This paper will not focus more on the family of garbled circuit protocols, but rather on the second family which are based on a so called Linear Secret Sharing Scheme(LSSS). 
+These type of protocols were introduced by Adi Shamir in a similiar time, in 1979 ~\cite{Shamir:1979:SS:359168.359176}.\\
+The basic idea of this approach is that multiple parties split their secrets into so called shares and then distribute them to the other parties. Computations are executed on these shares, and after the end it is possible to reconstruct the result from the different shares without revealing information about the initial secrets. There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the SPDZ like protocols.
 
-LSSS - linear secret sharing scheme
 
-By contrast, the LSSS-based approach involves using a so-called linear
-secret-sharing scheme, in which the parties: share" a secret into several shares
-which are distributed to different parties, perform computations on the shares,
-and then reconstruct the secret at the end by combining the shares to determine
-the output. LSSS-based MPC is traditionally presented in the context of
-information-theoretic security, although many modern practical protocols that
-realise LSSS-based MPC often make use of computationally-secure primitives
-such as somewhat-homomorphic encryption (SHE) [25] or oblivious transfer
-(OT) [32]. In this paper, we focus on computationally-secure LSSS-based MPC.
-
+TODO: Finite field Fp
+TODO: Lagrange interpolation? T+1 shares needed to reconstruct secret; choose random polynomial out of finite field 
+i.	Choose random polynomial out of finite field to a prime
+ii.	Degree of polynomial t is the number of tolerated adversaries
+iii.	Polynomial: f(0) = s
+iv.	Send shares to each other player
+v.	 T+1 shares needed to reconstruct secret (with Lagrange interpolation in O(n hoch 2))
+vi.	These can be used for different operations; for example some calculations can be made on the secrets, and at the end the final result is revealed and calculated and compared; so a result can be calculated without revealing the own secret
 
 \subsection{Terminology}
 Over the years different terminologies came up in the are of SMPC. Following will be a short introduction into some of them, so their definitions are clear.
@@ -487,63 +476,25 @@ Over the years different terminologies came up in the are of SMPC. Following wil
 There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and for runtime complexity. SMPC should run as fast as possible, while still providing all the neccesary security guarantees.
 
 To describe which party has which rights, and how many parties can be corrupted so the security can still be guaranteed, access structures were introduced.
-An access str 
-d qualified set.  An access structure is called \(Q_l \) if at least l+1 parties are needed to  form a qualified set. 
+An access structure describes how many parties are needed to form a so called qualified set. A qualified set is a group of parties which can pool their information to extract secret information..  An access structure is called \(Q_l \) if at least l+1 parties are needed to  form a qualified set. 
 An (n,t)-threshold scheme with t<n/l means that at least t+1 parties are needed to form a qualified set. Here, n is the number of total parties, and t is number of possible adversaries while not revealing any secrets.
-A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that it secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can give needed security guarantees. That means a full threshold scheme is a (n, n -1) threshold scheme. (???: IS THIS CORRECT???)
-
-
-An access structure for a set of parties denes which subsets of parties are
-allowed to discover the secret if they pool their information. Such quorums of
-parties are often called qualied sets of parties. An access structure is called Q`
-(for ` 2 N) if the union of any set of ` unqualied sets of parties is missing at
-least one party. We discuss this in some detail later, but for now the reader can
-think of an (n; t)-threshold scheme where t < n=` which is where a subset of
-parties is qualied if and only if it is of size at least t + 1. Computationallysecure
-LSSS-based MPC has recently seen signicant, effcient instantiations
-for full-threshold access structures [7, 23, 25, 32], which is where the protocol is
-secure if at least one party is honest, even if the adversary causes the corrupt
-parties to run arbitrary code (though this behaviour may cause the protocol to
-abort rather than provide output to the parties). In the threshold case similar
-effcient instantiations are known, such as the older VIFF protocol [21] which
-uses (essentially) information-theoretic primitives only.
-
-\subsubsection{Zero Knowledge Proofs (ZKPoKs)}
-
-
-\subsubsection{Monotone Span Programs}
-supposedly unimportant
+A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that it secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can give needed security guarantees.
+An access structure also doesn't have to be symmetric. In some cases there might be different type of parties, where different parties have different positions or levels of trust, so it is possible to specify that some set of parties only has to have the size of 2 to form a qualified set and another one needs the size of 4.\\
+Choosing the right access structure for the right use case is really important, because it has a realy big impact on performance and on the desired security level.
 
 
 
 
-
-
-a.	Part of cryptography that was started in the 1970s and is getting much more relevance in the last years
-b.	YAOs Millionaire problem
-c.	Mental poker
-d.	Yaos garbled circuit
-e.	Shamirs secret sharing scheme
-i.	Choose random polynomial out of finite field to a prime
-ii.	Degree of polynomial t is the number of tolerated adversaries
-iii.	Polynomial: f(0) = s
-iv.	Send shares to each other player
-v.	 T+1 shares needed to reconstruct secret (with Lagrange interpolation in O(n hoch 2))
-vi.	These can be used for different operations; for example some calculations can be made on the secrets, and at the end the final result is revealed and calculated and compared; so a result can be calculated without revealing the own secret
-f.	Other secret sharing schemes
 i.	Replicated (KNF based)
 ii.	Dx`NF based
 b)	SMPC basics
--	Access structures
--	Montone span programs?
--	Offline/online phase
--	Secret Sharing foundations (mathematical)
 c)	Early adoptions of LSSR; MASCOT?
 d)	SPDZ
 -	Maybe not too many details, because a lot of things are similar to SCALE-MAMBA
 
 
-Sounds ness slack?
+TODO: SOUNDNESS SLACK
+TODO: LATTICE BASED CRYPTOGRAPHY
 
 
 \section{SCALE-MAMBA}\label{sec:scalemamba}
