@@ -63,6 +63,7 @@
 \xpatchcmd{\switcht@francais}{\relax}{}{}{}
 \makeatother
 
+\usepackage{url}
 \usepackage{ifluatex}
 \ifluatex
   \usepackage{fontspec}
@@ -373,21 +374,6 @@ The basic problem is how to evaluate a common function in which multiple parties
 This paper's main focus will lay on SCALE-MAMBA, a system developed mainly by the KU Leuven, which is one of the frontrunners in SMPC and a system that combines a lot of research by different teams with the newest ongoing research to provide a platform with highly performant SMPC. Nevertheless, this paper will at first give a short history of SMPC and will try to explain the basic technologies of SMPC to the reader. It will compare SCALE-MAMBA to its predecessors and will also try to give a short comparision to other SMPC systems which use different approaches, especially considering the usability in different use cases. Ultimately, it will try to give an outlook what might be coming in the next years.\\
 
 
-
-a)	Motivation: 
--	Sometimes hard to know who to trust 
--	Problem: want to compute something together but we don’t want to share our information
--	A lot of use cases: number of distributed environments is climbing rapidly; for example see crypto currencies (distributed block chain; no one can do something alone, everyone relies on everyone else (or at least on a majority of the other participants)
-o	Implements a lot of the theoretical foundations
-o	Crypto suit, end to end
-o	Possible to be safe against corruption with abort
-o	Good (compared to others) execution times
-o	Improvement of before existing technologies (SPDZ especially, and others)
-o	This thesis will try to give an overview over Secure Multiparty Computation, especially focusing on Scale-Mamba and all the technologies it builds upon. Therefore, it will explain the basic technologies first in an abstracted manner and later go more into detail. 
-
-
-
-
 \section{Cryptography Basics}\label{sec:basics}
 
 Before diving deeper into SMPC, this section will shortly recap on cryptography basics that might be unknown to the reader. These basics are not solely used by SMPC, but nevertheless, play a huge role in a lot of protocols.
@@ -423,14 +409,6 @@ Althought FHE has amazing properties for a lot of usecases, in praxis it is way 
 That is where Somewhat Homomorphic Encryption (SHE) becomes relevant. SHE only supports one operation, and in most cases that is addition. This takes away a lot of possibilities but, therefore, the performance gain is immense. So immense, that SHE is used a lot in practice, for example in SCALE-MAMBA.\\
 The SHE scheme used in SCALE-MAMBA, is based on the so called Brakerski-Gentry-Vaikuntanathan cryptosystem(BGV).\\
 
-
-
-//e)	Access structures?
-//f)	Monotone Span Programs (MSP) ?
-h)	Different adversary types
-a.	Malicious
-b.	Honest but corious
-
 \subsection{Adversary types}
 Cryptography is the science of protecting information or communication from an adversary. This adversary is normally a third party that wants to get information for his own gain or want to sabotage something because of his own interest. In the are of SMPC we we normally divide between two types of adversaries. In SMPC we expect that everyone but ourselves can be controlled by an adversary.  That means the adversary can control between one and all of the other parties with which we are communicating. The difference to the normal cryptographic adversary model is, that the adversary is one of the parties we are communicating with but not a third party that tries to intercept communication.
 \subsubsection{Honest but curious}
@@ -439,7 +417,7 @@ This type of adversary tries to gain as much information as possible. But this a
 \subsection{Malicious adversary}
 While this adversary also wants to gain all the information, he is not obeying to the rules of the protocol. This type of adverary can send different inputs to manipulate the results he receives. Furthermore, he wants to interrupt the whole protocol. That could mean making the computation impossible, but as well modifying his own input or his own calculations, so the final result is changed and might lead to different implications
 
-It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value.
+It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value. Most SMPC protocols try to guarantee safety versus both type of adveraries, bvut there are also approaches that only use passive security, i.e. only protecting versus non malicious adversaries.
 
 
 
@@ -450,22 +428,15 @@ These explorations lead to a group of basic protocols which established the area
  Now we will take a short look on the two most famous of these protocols, which both were the basis for a whole family of algorithms established in the years to follow until today.
 
 \subsection{Yaos Garbled Circuit}
-There are typically two groups of SMPC protocols, in which most of the protocols can be categorized. One is based on garbled circuits which were first introduced by Yao in 1986 ~\cite{4568207}. The basic idea is, that, in a two party setting, one party, Alice, garbles the boolean circuit that has to be evaluated and sends it to the second party, Bob. Bob uses his own input, Alice's encrypted input and the garbled circuit to evaluate the circuit in an ecnrypted way. At the end they exchange the results and can compute the result this way. 
+There are typically two groups of SMPC protocols, in which most of the protocols can be categorized. One is based on garbled circuits which were first introduced by Yao in 1986 \cite{4568207}. The basic idea is, that, in a two party setting, one party, Alice, garbles the boolean circuit that has to be evaluated and sends it to the second party, Bob. Bob uses his own input, Alice's encrypted input and the garbled circuit to evaluate the circuit in an ecnrypted way. At the end they exchange the results and can compute the result this way. 
 
 \subsection{Shamirs Secret Sharing Scheme}
 This paper will not focus more on the family of garbled circuit protocols, but rather on the second family which are based on a so called Linear Secret Sharing Scheme(LSSS). 
-These type of protocols were introduced by Adi Shamir in a similiar time, in 1979 ~\cite{Shamir:1979:SS:359168.359176}.\\
-The basic idea of this approach is that multiple parties split their secrets into so called shares and then distribute them to the other parties. Computations are executed on these shares, and after the end it is possible to reconstruct the result from the different shares without revealing information about the initial secrets. There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the SPDZ like protocols.
+These type of protocols were introduced by Adi Shamir in a similiar time, in 1979 \cite{Shamir:1979:SS:359168.359176}.\\
+The basic idea of this approach is that multiple parties split their secrets into so called shares and then distribute them to the other parties. This is done by generating random polynomials with a degree depending on the security level and then calculating the shares as points in this polynomial. Computations are executed on these shares, and after the end it is possible to reconstruct the result from the different shares without revealing information about the initial secrets. This is done by using Lagrange interpolation.\\
+ There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the SPDZ like protocols.\\
+In SMPC, normally all operations are executed in a finite field \(F_p = \{ 0,...,p-1\}\) with a prime p. That means all operations use modulo p at the end on the result to keep the result in the field. Therefore, for now on \(F_p\) will be used and when using an exact application, then p has to be specified depending on the usecase.\\
 
-
-TODO: Finite field Fp
-TODO: Lagrange interpolation? T+1 shares needed to reconstruct secret; choose random polynomial out of finite field 
-i.	Choose random polynomial out of finite field to a prime
-ii.	Degree of polynomial t is the number of tolerated adversaries
-iii.	Polynomial: f(0) = s
-iv.	Send shares to each other player
-v.	 T+1 shares needed to reconstruct secret (with Lagrange interpolation in O(n hoch 2))
-vi.	These can be used for different operations; for example some calculations can be made on the secrets, and at the end the final result is revealed and calculated and compared; so a result can be calculated without revealing the own secret
 
 \subsection{Terminology}
 Over the years different terminologies came up in the are of SMPC. Following will be a short introduction into some of them, so their definitions are clear.
@@ -483,92 +454,50 @@ An access structure also doesn't have to be symmetric. In some cases there might
 Choosing the right access structure for the right use case is really important, because it has a realy big impact on performance and on the desired security level.
 
 
-
-
-i.	Replicated (KNF based)
-ii.	Dx`NF based
-b)	SMPC basics
-c)	Early adoptions of LSSR; MASCOT?
-d)	SPDZ
--	Maybe not too many details, because a lot of things are similar to SCALE-MAMBA
-
-
 TODO: SOUNDNESS SLACK
 TODO: LATTICE BASED CRYPTOGRAPHY
 
+Scale-Mamba is an implementation of SPDZ among other protocols. SPDZ is right now the most efficient protocol in use. 
+
+Most LSSS-based MPC protocols split the computation into two parts: an of-
+
+ine phase, in which parties interact using expensive" public-key cryptography
+to lay the groundwork for an online phase in which only cheap" informationtheoretic
+primitives are required. The online phase is where the actual circuit
+evaluation takes place. For the access structures considered in this work, namely
+Q2 structures, the offline phase is almost as fast as the online phase. Thus the
+goal here is to minimize the cost of communication in both phases.
 
 \section{SCALE-MAMBA}\label{sec:scalemamba}
 
 \subsubsection{Overview}
 
-In the last years, the research in SMPC is constantly ongoing, and there are new approaches or improvements to old approaches appearing regulary. But most of these publications only focus on a small area of the whole picture. SCALE-MAMBA is a project that tries to combine the state-of-the-art research into one system. That means, that it is offering kind of an end-to-end system for SMPC.
-It is a research system that is continously in development, therefore, there is not a single final version that can be examined. It offers as well a wide range of protocols for different usecases, i.e. it is possible to use the system in different confidurations. That also means for this thesis, that there is not a single process that can be examined. Therefore, this thesis tries to give more an overview how the process works in general, which are the main, especially which are newest and best, parts and where are the problems and bottlenecks.
+In the last years, the research in SMPC is constantly ongoing, and there are new approaches or improvements to old approaches appearing regulary. But most of these publications only focus on a small area of the whole picture. SCALE-MAMBA\cite{ScaleMambaDocu} is a project that tries to combine the state-of-the-art research into one system. That means, that it is offering kind of an end-to-end system for SMPC.
+It is a research system that is continously in development, therefore, there is not a single final version that can be examined. It offers as well a wide range of protocols for different usecases, i.e. it is possible to use the system in different confidurations. That also means for this thesis, that there is not a single process that can be examined. Therefore, this thesis tries to give more an overview how the process works in general, which are the main, especially which are newest and best, parts and where are the problems and bottlenecks.\\
+SCALE-MAMBA consists of two parts. The one part is called Secure Computation Algorithms from LEuven (SCALE) and is the SMPC part. It contains all the computational logic and algorithms for multi-party computations. The second part is called Multiparty AlgorithMs Basic Argot (MAMBA) and is a compiler for the SMPC programs.\\
  
-In general, the protocol is split in two parts, first an offline phase and secondly and online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything.
+In general, the SMPC protocol is split in two parts, first an offline phase and secondly and online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything. In SCALE-MAMBA, compared to its predecessors, the offline and online phase are completly integrated. Therefore, it is not possible anymore to execute them separately like in SPDZ for example. But it is a much closer approach to a real world application.\\
 
 While SCALE-MAMBA also offers different access structures, the most commonly used security configuration is active security with abort in a full threshold scheme, that means that every except one party could be corrupted, and still no information is leaked, because the evaluation is aborted.
 
-
-
-Actively Secure
-Additive Shares: Innputs are shared via an additive secret sharing scheme.
-
-Scale-mamba: fully integrated offline/online phase
-These random triples are further used in the online phase where parties interact by broadcasting data whenever a value is reveale
-Privacy and correctness are then guaranteed by authenticated shared values with information-theoretic MACs4 on top of them.
-To open a valueJxK, all players Pi broadcast their shares x(i), commit and then open m(i)- x* delta(i). Afterwards they check if the sum of the latter is equal to zero. One can check multiple values at once by taking a random linear 4 These are not be confused with the more common symmetric-key MACs.
-7
-combination of m(i)-x*delta(i) exactly as in the MAC Check protocol in Figure 5 in Section 3. 
-
-
-We make all our calculations over a finite field F over a prime p. The field contains p elements, 0 to p-1, and all results are put through modulo p so they are still in F.
-
-Linear addition is easy, because we use a linear secret sharing scheme. Secrets can be added by one party/MACs as well, without any realy computational complexity. 
+\subsubsection{MAMBA}
+For this paper the more interesting part is the algorithmic part. But still, the importance of the compiler shouldn't be undervalued. Because while the algorthmic foundations might be more important from a theoretical point of view, the compiler, written in C++, enables the user to really use these technologies in a system where he can rely on the security gurantees given by the algorithms. The programs can be written for MAMBA in a syntax similiar to python's. In these programs, the user can specify which security settings he wishes to use. He can specify, how he wants his SMPC to exactly be executed, and which security parameters he wants to use. MAMBA is the compiler which then translates the instruction to bytecode and executes them. MAMBA is the part that gives the system the possibility to be properly used and tested. It makes it easy, to change the parameters, to be able to execute comparable tests, and to have a abstraction level for the user.\\
 
 
 \subsubsection{Offline phase}
 
--basic idea
--beaver
--SPDZ
--scale-mamba
--further improvements?
-- communication chanels during the offline phase
 
-
-\subsubsection{Beaver triples}
-
-Beaver triples 
-
-
-
-
-In the offline or pre-processing phase, the most important part is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase. They are used to verify that the computations were done correct, but we will take a closer look into that later./(Or maybe: They are needed for multiplications, because multiple parties have to be involved for them.)
-
+In the offline or pre-processing phase, the most important part is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase, but will be used in the online phase to guarantee that multiplications can be done without revealing the secret inputs of the different parties.
 Beaver triples are a tuple of three numbers \((a,b,c)\), with \( a,b,c\in \mathcal{F} )\), with \(a\) and \(b\) being chosen uniformly randomly, and \(a*b=c\).
 
-SPDZ
-For the offline phase there is a global public key a global secret key. Every party has a share Delta of this secret key, and there is a distributed decryption protocol, so that the parties decrypt together and every party gets a secret sharing of the cleartext. (Look into more detail in RETSHARE in DPSZ12 by DAMGARD)
+The second thing that is done in the offline phase is the generation of a global MAC key. This MAC key is later used, to authentificate the different shares at the end of the computation. This key is also distributedly generated, i.e. only if all parties pool together they can recover its value.\\
 
-For passive security only, the parties can simply broadcast encryptions of randomly sampled shares ai,bi and their share of the MAC key deltai. These encryptions can be added up and multiplied to produce encryptions of (a*b,a* delta,b*delta,a*b*delta) if the encryption allows multiplicative depth two. Distributed decryption then allows the parties to receive an additive secret sharing of each of those values, which already is enough for a triple. Since achieving a higher multiplicative depth is relatively expensive, SPDZ only uses a scheme with multiplicative depth one and extends the distributed decryption to produce a fresh encryption of a·b, which then can be multiplied with the encryption of delta. In the context of an active adversary there are two main issues: First, the ciphertexts input by corrupted parties have to be correct and independent of the honest parties’ ciphertexts. This is where zero-knowledge is applied to prove that certain values lie within a certain bound. Second, the distributed decryption protocol actually allows the adversary to add an error - that is, the parties can end up with a triple (a,b,ab + e) with e known to the adversary and where the MACs have additional errors as well. While an error on a MAC will make the MAC check fail in any case, the problem of an incorrect triple requires more attention. This is where the so-called SPDZ sacrifice comes in. Imagine two triples with potential errors (JaK,JbK,Jab + eK) and (Ja0K,Jb0K,Ja0b0 + e0K), and let t be a random field element. Then, t*(ab + e)-(a0b0 + e0)-(ta-a0)*b-a0*(b-b)0 = tab + te-a0b0-e0-tab-a0b-a0b + a0b0 = te-e0, which is 0 with probability negligible in sec for a field of size at least 2sec if either e 6= 0 or e0 6= 0. The use of MACs means that the adversary cannot forge the result of this computation, hence any error will be caught with overwhelming probability since with the additive secret sharing of our triples the parties have
-
-
-
-
-
-A. First improvement with MASCOT
-using OT for triple generation isntead of SHE
-
-B. Overdrive/TopGear
-Improving SHE -> This gave a lot of needed push to SPDZ
-
+\subsubsection{Zero Proofs of Knowledge}
 In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that are the so called Zero Proofs of Konwledge Protocol(ZPoKP).
 
-In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly, or atleast that they dont divert too much from the expected result.
+In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly, or atleast that they dont divert more than a specified error \(e\) the expected result.
 
-
-ZPoKP are a technique that was introduced  in 1985 by (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.419.8132\&rep=rep1\&type=pdf). The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
-The ZPoKP used in SPDZ is a Schnorr-like protocol (these prtocols ........).
+ZPoKP are a technique that was introduced  in 1985 \cite{Goldwasser:1985:KCI:22145.22178}. The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
 
 Assumed Alice(in this scenario called the prover) wants to prove to Bob (the verifier) that she knows \( x\) in a Field \( \mathcal{F} \), such that \(f(x)=y\). It is as well assumed, that \( f \) is homomorphic with respect to the field operations in  \( \mathcal{F} \).
 \begin{enumerate}
@@ -590,58 +519,30 @@ In the firt step she chose a random element s and calulated a=f(s). This informa
 When calculating z=s+e*x, she also didnt share any information regarding x, as long it is guaranteed that Bob didnt have any knowledge about the s.
 So under the assumption that Alice chooses a new random s each time the protcol is executed, she doesn't share any information regarding her secret x.\\
 
+It is not really important for this thesis, which ZPoKP is exactly used, but it should be said that the protocol used in SCALE-MAMBA is based on Schnorr's protocol.\\
 
-
-The semi-homomorphic solution works roughly as follows: One party sends an encryption Enc(a) of their input under their own public key to the other, which replies by C := b*Enc(a)-Enc(cB), where b denotes the second party’s input, and cB is chosen at random. Any semi-homomorphic encryption scheme allows the multiplication of a known value with a ciphertext, hence the decryption of the second message is cA := b*a-cB, which makes (cA,cB) an additive secret sharing of a*b. Here the noise of C might reveal information about b but this can be mitigated by adding random noise from an interval that is sec larger than the maximum noise of C. This technique, sometimes called “drowning”, is also used in the distributed decryption of SPDZ. 
-
-
-
+\subsubsection{First improvement with MASCOT}
 In one of there earlier works, BDOZ, pairwise MACs were used to authentificate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorpic encryption. To guarantee the data integritym pairwise zero-knowledge proofs were used, in total O(n2) of them. 
 In SPDZ instead of HE, SHE based on the BGV ecnryption scheme was used, reducing the amount of ZK proofs per triple by a factor of n and as well the overhead per triple, because they used a single ZKPoK for proving thousand of triples.
-Because BGV is a lattice based SHE scheme and therefore the ZKPoK are relatively expensive, for a long while a straetgy called cut-and-choose was used, which only offered covert security. 
-In 2016 the part was changed to an OT based offline phase called MASCOT, which sped up tbe process by two order of magnitude compared to the previous implementation(Damgard et al. (ESORICS ’13). ).
-But shortly afterwards it was turned back to a SHE based offline phase, with the introduction of the so called Overdrive, being at least 6 times faster than MASCOT. Overdrive includes two parts, a protocol called Low Gear protocol for small numbers, and a proctocol called High Gear for larger numbers. In version 1.2 of Scale-mamba only the HighGear protocol was used, and in version 1.3 solely an improvement to this protocol is supported, called TopGear.
+Because the offline phase was the weak point of the existing SPDZ implementations, in regards to runtime while still managing a sufficiently secure system, in 2016 MASCOT \cite{cryptoeprint:2016:505} was introduced, which improved the speed of the offline phase by a magnitude of 2. MASCOT used Oblivious Transfer instead of SHE to significantly reduce the amount of communication and computation. We will not go into detail into this protocol, but rather look on its successor.
 
 
+\subsubsection{Overdrive}
+Shortly afterwards in 2017 a new protocol for the offline phase called Overdrive was introduced \cite{cryptoeprint:2017:1230}, which once again got better results with SHE instead of OT, improving the run time at least by a factor of 6. Basically, it is a really similiar protocol to MASCOT, but just uses SHE in the places where MASCOT used OT. So explaining Overdrive already should give a good impression how MASCOT works. \\
+ Overdrive includes two parts, a protocol called Low Gear protocol for small numbers, and a proctocol called High Gear for larger numbers. In version 1.2 of Scale-mamba only the HighGear protocol was used, even for smaller numbers.\\
+
+The biggest difference between the ZKPoK usage in Overdrive and in SPDZ is, that the parties not anymore prove multiple smaller statements between each other with ZKPoK, but instead make a joint statement and prove thi one toegether. Because ZKPoK are really expensive, this makes a big difference in the overall performance.\\
+This way, Overdrive did not improve the amount of communication channels used, but it decreased the computational costs by a factor n.\\
+A second big strategy used by SPDZ and Overdrive is the so called Soundness Slack. Because in practice it is to expensive to prove that a result is exact, so it is sufficient to prove that the value, here the product of the beaver triple, exact but with the legalization of a small error. Later on, this error, if existing and introduced by an adversary, will be detected by a different technique called sascrificing.\\
+Overdrive uses as well drowning, which is the technique of adding noise to a secret sharing. Because otherwise, the noise of the SHE function would reveal information over the secret. So the noise is drowned by introducing an additional random noise that is bigger than the maximum possible noise.\\
 
 
-The High Gear protocol tweaked the original ZKPoK used in SPDZ. The basic idea is, that all the parties prove a single joint statement instead of multiple smaller ones.
+\subsubsection{TopGear}
+Recently, an even newer improvement for the offline phase was introduced, called TopGear \cite{cryptoeprint:2019:035}. It is implemented in SCALE-MAMBA since version 1.3\cite{ScaleMambaDocu}, which was released in January 2019. It further improved the HighGear protocol of the Overdrive implementation, by targeting specifically the ZKPoKs.
 
-SoundsnessSlack? protocols based on this, because the protocols which prove the exact bounds are too slow in praxis
-
-But it still isn't as efficient and secure as it could be, because the Sounds ness security SndSec is related to the 
-
-The zero-knowledge security ZK sec is related to a statistical distance, whereas the soundness security Snd sec is related to the probability that an adversary can cheat in an interactive protocol. A low value for Snd sec is rather acceptable than a low value for ZK sec. 2. The practical complexity of the protocol, in particular the memory and computational consumption, is dominated by Snd sec. It turns out that ZK sec has very virtually no effect on the overall execution time of the offline phase, for large values of p.
-
-Therefore, in the current iteration of Scale-Mamba an improved version of the HighGear protocol is implemented.
-
-
-
-First: compute SPDZ style MACs; additive secret sharing of the product of a value, and of a global MAC key, which is secret shared additevly as well (With ZPoKP)
-In the authentication protocol, we make use of the fact that changing values are always multiplied with the same share of the MAC key
-
-Multiplication triple generation: 2 party protocol; --> Reduction of communication channels(link paper); reduction of most part to Q2; this enables us to not have a complete network of communication channels for most of the protocol (offline phase)
-
-Section3.3 Overdrive: Triple Generation
- In the triple generation, however, both values change from triple to triple, thus we rely on the SPDZ sacrifice there. For this, we use a trick used by Keller et al. that reduces the complexity by generating a pair of triples ((a,b,ab),(a0,b,a0b)) for the sacrifice instead of two independent triples. 
-
-Before calculated with HE, then in MASCOT with OT, now with SHE
-
-
-ZK proofs: mitigiate too much noise generatiuon by adversaries
-
-
-Mac key: generation of mac key, generation of multiplication triples (SPDZ: HE, SCALE-MAMBA:SHE)
-Sacrifice of triples to check correctness
 
 
 \subsubsection{Online Phase}
-
-
-
-We  will  use  unconditionally  secure  MACs  to  protect  secret  values  from  beingmanipulated by an active adversary. 
-global key Achosenrandomly inFpk, and for each secret valuea, we will shareaadditively among the players, and wealso secret-share a MAC Aa
-
 
 \subsubsection{Preliminaries}
 
@@ -655,11 +556,11 @@ We assume following preliminaries are given after the execution of the offline p
 \item There are \(n\) parties \(P_1,...,P_n\)
 \item There is a given function \(f(a_1,...,a_m)\) which the parties want to evaluate together. The inputs are secret, and each input is hold by exactly one party.
 \item There is a global MAC key \( \alpha\) that is secret to every party and additively shared, so that every party \( P_i\) has a share  \( \alpha_i\) so that  \( \alpha=\alpha_1+...+\alpha_n\)
+\item Each of the secret inputs to \(f\) is additively shared between the parties
 
 \end{enumerate}
 
-Following, it is going to be demonstrated, how addition and multiplication are done in this environment. This is sufficient, because a group(XXX???) with addition and multiplication is already touring complete, so there is no need for any other operation. (ADD LINK HERE)\\
-
+Following, it is going to be demonstrated, how addition and multiplication are done in this environment. This is sufficient, because a group with addition and multiplication is already touring complete, so there is no need for any other operation.\\
 
 Sharing of values:\\
 After sharing a value \( a \in F_p\), it is represented as following tuple:\\
@@ -680,10 +581,7 @@ Assumed there are two values \( a\) and \( b\) which should be added together an
 
 Then every party \( P_i\) adds up their local shares, so that:\\
 $$\langle c_i\rangle=\langle a_i\rangle+\langle b_i\rangle=((\delta_a+\delta_b),(a_i+b_i),\gamma (a)_i+\gamma (b)_i))$$
-Correctness: Afterwards, \( c=a+b\) is obviously additively shared between the parties and can be used for further computations.\\
-
-(Maybe go more in detail about correctness)
-
+\textbf{Correctness}: Afterwards, \( c=a+b\) is obviously additively shared between the parties and can be used for further computations.\\
 
 \subsubsection{Addition with constant}
 Adding a public constant is really simple in this representation. Because \( \gamma (a)=\alpha(a+\delta)\), adding a constant \(c\) to a additively shared value \(a\) is done by:\\
@@ -693,7 +591,7 @@ Correctness: It can be seen, that the constant is only added to one shared value
 \subsubsection{Multiplication with constant}
 Multiplicating with a public constant is as well really simple and can also be done by each party invdividually. It is defined as:\\
 $$c*\langle a\rangle=\langle c*a\rangle=(c*\delta,(c*a_1,...,c*a_n),,(c*\gamma (a)_1,...,c*\gamma (a)_n)$$
-Correctness:(TO BE DONE\\
+\textbf{Correctness}:(TO BE DONE\\
 
 \subsubsection{Multiplication}
 
@@ -713,7 +611,7 @@ For each multiplication operation, we need one of the Beaver triples \( (\langle
 Partially opening  of values: All players send their respective shares of a value, but not the MAC value, to one chosen party \(P_i\) which summs up all values and then broadcasts the result. In praxis this party is changing for every opening to balance the workload.\\
 Fully opening of values: In this case all players broadcast their respective shares and the respective MACs to all players, so all players can verify the result.\\
 
-Correctness: If we simplify \( \phi \), we can see that every term disappears (given that the triples are proper triples):
+\textbf{Correctness}: If we simplify \( \phi \), we can see that every term disappears (given that the triples are proper triples):
 $$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
 $$ = t*(z_1 - x_1*y_2+x_1*y_2 -x_1*y_1) + y_1*x_2 - x_2*y_1+ x_2*y_2 - z_2 + x_2*y_2 -  x_2*y_2$$
 $$= t* (z_1 - x_1*y_1) + x_2*y_2 - z_2 $$
@@ -721,9 +619,9 @@ So we can see that \( \phi = 0 \Leftrightarrow x_1 * y_1 = z_1 \land x_2*y_2=z_2
 In this process we didn't reveal the triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle ) \), so now we can use it for the multiplication knowing that one the one hand it is still secretly shared and unknown and on the other hand that it was not modified by an adversary.\\
 
 
+There is a small improvement in SCALE-MAMBA compared to SPDZ regarding the triple generation that was added later in ~\cite{cryptoeprint:2017:123}. The idea is to not sacrifice a random second triple, to guarantee the correctness of the first one, but to sacrifice a similiar triple. For this, the triples in the online phase are already generated in pairs, so that there are are two triples \( (\langle x \rangle ,\langle y \rangle , \langle x*y \rangle ) \) and \( (\langle x' \rangle ,\langle y\rangle , \langle x'*y\rangle ) \). This way the triples can be calculated faster in the offline phase, because one half of the multiplication is the same, and still the triples keep the property to be sacrificed for each other to check the correctness of the other triple.\\\\
 
-
-There is a small improvement in SCALE-MAMBA compared to SPDZ regarding the triple generation that was added later in ~\cite{PAPER WITH TRIPLE}. The idea is to not sacrifice a random second triple, but a similiar triple ....
+In SCALE-MAMBA, this triple sacrifice is also already executed in the offline phase. But for consistency the explanation remains here, to better be able to see the difference between SPDZ and SCALE-MAMBA.\\
 
 
 Now in the next step the multiplication of \(\langle a \rangle \) and \(\langle b \rangle \) is executed with the help of the triple.
@@ -758,56 +656,8 @@ If the calculations were correct, the MAC was shared properly and not modified, 
 
 
 
-
-
-
-a)	Why we need it? Problems of SPDZ, other SMPC protocols
-b)	Architecure
--	Written in C++
--	Scale: Secure Computation Algorithms from LEuven
-o	SMPC foundations
-0 00 o	Code base based on different projects like SPDZ, HE…?,.
-o	Combination of offline  online phase
-o	We will focus more on this then on the Compiler part, its more relevant for this thesis
-o	
--	Mamba: Multiparty AlgorithMs Basic Argot
-o	Compiler; similar to python
-o	Why necessary? Easily able to write own configurations for SMCP for SCALE-MAMBA
-c)	Idea, Computational Logic
-
-Scale-Mamba is an implementation of SPDZ among other protocols. SPDZ is right now the most efficient protocol in use. 
-
-Most LSSS-based MPC protocols split the computation into two parts: an of-
-
-ine phase, in which parties interact using expensive" public-key cryptography
-to lay the groundwork for an online phase in which only cheap" informationtheoretic
-primitives are required. The online phase is where the actual circuit
-evaluation takes place. For the access structures considered in this work, namely
-Q2 structures, the offline phase is almost as fast as the online phase. Thus the
-goal here is to minimize the cost of communication in both phases.
-
--	Online  Offline phase
--	Offline phase:
-o	Calculation of beaver triples
-o	Precalculations like MAC?
-o 	Offline phase based on Overdrive protocols (before Mascot)
-		Low-Gear: For smal numbers, O(n to the power of 2), faster than O(n )
-		High-gear: For high numbers (for SCALE-MAMBA: Only high gear is implemented)
-
--	Online phase:
-o	Secret sharing
-
-SPDZ  Secret  Sharing.This  SPDZ  protocol  [15]  processes  data  using  an  authenticated  secret  sharingscheme defined over a finite fieldFp, wherepis prime. The secret sharing scheme is defined as follows: EachpartyPiholds a share XXXX a global MAC key XXXX. A data element XXXX held in secretshared form as a tuple  xy el[n], such that XXX. We denote a valuexheld in such asecret shared form as x. The main goal of the SPDZ offline phase is to produce random triples (abc)such thatc=a*b. If we wish to denote the specific value on which yiis a MAC share then we write yi[x].
-
-o	Sacrifice of triples to check calculation results
-o	Check for adversaries (MAC?)
-o	Abortion
--	Options/ Configurations:
-o	It is possible to use different setups, depending on the taste of the user
-d)	Performance, real world usage, problems, upcoming developments, 
--	Upcoming: Calculating offline data before, and then compiling the Mamba code just in time (especially full threshold access structures need a lot of time)
-
-
+\subsubsection{Upcoming changes to SCALE-MAMBA}
+SCALE-MAMBA is a research system, so there will be a lot more research time spend on improving the system further. An important aspect is the usability in the practice. Because online and offline phase are integrated into each other, the complete runtime sometimes takes a lot of time. This is especially the case in full threshold access structures. Because of the integration, it is right now not possible to execute the offline phase earlier. One of the currently ongoing improvements on SCALE-MAMBA tackles exactly this problem. The developer team tries to give MAMBA the possibility to compile code just in time. That would offere the possibility, that the offline data is calculated before and then, when the need arises, a computatation could be specified in MAMBA and then intime compiled and executed, without having to wait for the expensive offline calculations.\\
 
 
 \section{Comparison}\label{sec:comparison}
@@ -815,199 +665,32 @@ d)	Performance, real world usage, problems, upcoming developments,
 
 a.	What else is out there?
 b.	Different use cases – when which SMPC tool is more useful; what are the strengths of SCALE-MAMBA compared to other ones?
+	- Security! High performant for such a secure system
+	- In some cases not the highest security is needed; application for a normal user, not for a company, have much less security requirements but much higher requirements on performance
+	- Active security is not always required, in non-critical systems it is often sufficient to know that noone knows the users data
 c.	Factual comparisons
+	- YAO/LSSS --> LSSS protocols right now are more suited for the praxis
 
-SCAPI
-SCAPI is an open-source Java library for implementing secure two-party and multiparty computation protocols (SCAPI stands for the “Secure Computation API”). It provides a reliable, efficient, and highly flexible cryptographic infrastructure.
+	- SCAPI
+	-SCAPI is an open-source Java library for implementing secure two-party and multiparty computation protocols (SCAPI stands for the “Secure Computation API”). It provides a reliable, 	efficient, and highly flexible cryptographic infrastructure.
+SCAPI provides only passive security
 
 https://scapi.readthedocs.io/en/latest/intro.html
 
 
-\section{Outlook and Conclusion}\label{sec:outlook}
+\section{Resume}\label{sec:outlook}
 
-a.	What brings the future in general in SMPC?
-b.	SMPC is a technology that will shape the future (at least a bit)
+\subsubsection{Outlook}
+Their are a lot of future applications for Secure Multiparty Computation. With the threoretical research of the early years much more turning to praxis oriented research, todays SMPC protocols, and especially the successors of SPDZ, have a bright future. With already more and more applications starting to use SMPC in systems that need to guarantee security of private data, the list will only grow more and more with the performance of the protocols and the same time the available computation power improving. \\
+With SCALE-MAMBA being one of the first performant systems that can be really used in a real time scenario, it will probably not take a lot of more years until there will be proper commercial solutions. And if big companies start to adapt and use these theoretical foundations, then, in my opinion, SMPC will be a really important tool in computer science and especially in distrbuted environments. There are a lot more possible applications that could be coming in the next years, for example in the financial branche SMPC could play a huge role.\\
+SMPC can be a technology that shapes the future, or it can be just a stepstone for a new technology to emerge. But definetly, privacy and security plays already a huge role in our society, and this will not diminish in any close future.
 
+\subsubsection{Conclusion}
 
-a.	SCALE-MAMBA is amazing
-b.	We saw how it works in which cases it is more useful
-c.	We saw why SMPC is necessary; we saw that we need it (or at least we should use it)
-
-
-Basically most research going on in the offline phase : online phase is really straight forward right now, O(n), only simple calculations, really fast
-
-
-\section{TODO LIST}\label{sec:xxx}
-
-
-Format: 
-Your report should have a minimum length of 15 pages LNCS Style, excluding references. 
-Your report has to include references, but they do not count towards your total page limit. The 'literature list' is the list of references. 
-
-Try not to write more than 20 pages unless you feel you have a very good reason. 
-
-Template: 
-The LNCS is template is available for Latex [1] and Word [2] on the Springer page, 
-but I suggest you use this quick start version [3]. 
-
-How to correctly include references in your literature list: 
-
-Please refer to e.g. the Chicago manual of style [5].
-
-Any valid reference style is accepted, as there are many styles, and as they basically contain the same information. 
+In this paper we could see how SMPC works in general, and, especially, how SCALE-MAMBA works and how it evolved over the years in comparison to its predecessor, SPDZ. It was shown, how the protocol is split into a primary offline phase in which the computational expensive calculations are executed and all the preparations are done for the later circuit evaluation, like calculating the Beaver Triples, and how afterwards in the online phase the circuit is evaluated, how the triples are used to execute a multiplication without sharing the secret inputs and how the results can be verified at the end. 
 
 
 
-Next steps: 
-I will send you instructions about the peer review process closer to the next deadline.
-
-
-
-Best regards, Benjamin Heitmann.
-
-
-
--	Use Latex
--	Find examples/ empirical results
--	Gmw protocol – scapi library LSSR based, passive as comparison
--	Reusing results: maybe check in night for adversaries?
--	Could be nice to include reuse
--	
-
-
-
-\section{Bibliography}\label{sec:biblio}
-
-
-\section{Abbreviations}\label{sec:abb}
-
-
-List of abbrviations
-LSSR
-SMPC
-SPDZ
-OT
-MAC
-HE
-SHE
-SCALE
-MAMBA
-
-
-
-
-\section{Introduction}\label{sec:intro}
-
-The remainder of the paper starts with a presentation of related work (\cref{sec:relatedwork}).
-It is followed by a presentation of hints on \LaTeX{} (\cref{sec:hints}).
-Finally, a conclusion is drawn and outlook on future work is made (\cref{sec:outlook}).
-
-\section{Related Work}
-\label{sec:relatedwork}
-
-is a graphical \commentontext{modeling}{modeling with one \qq{l}, because of AE} tool.
-
-
-\section{LaTeX Hints}
-\label{sec:hints}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=.8\textwidth]{example-image-golden}
-  \caption{Simple Figure. }
-  \label{fig:simple}
-\end{figure}
-
-\begin{table}
-  \caption{Simple Table}
-  \label{tab:simple}
-  \centering
-  \begin{tabular}{ll}
-    \toprule
-    Heading1 & Heading2 \\
-    \midrule
-    One      & Two      \\
-    Thee     & Four     \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{lstlisting}[
-  % one can adjust spacing here if required
-  % aboveskip=2.5\baselineskip,
-  % belowskip=-.8\baselineskip,
-  caption={Example Java Listing},
-  label=L1,
-  language=Java,
-  float]
-public class Hello {
-    public static void main (String[] args) {
-        System.out.println("Hello World!");
-    }
-}
-\end{lstlisting}
-
-\begin{lstlisting}[
-  % one can adjust spacing here if required
-  % aboveskip=2.5\baselineskip,
-  % belowskip=-.8\baselineskip,
-  caption={Example XML Listing},
-  label=L2,
-  language=XML,
-  float]
-<example attr="demo">
-  text content
-</example>
-\end{lstlisting}
-
-\Cref{L1,L2} show listings typeset using the \texttt{lstlisting} environment.
-
-cref Demonstration: Cref at beginning of sentence, cref in all other cases.
-
-\Cref{fig:simple} shows a simple fact, although \cref{fig:simple} could also show something else.
-
-\Cref{tab:simple} shows a simple fact, although \cref{tab:simple} could also show something else.
-
-\Cref{sec:intro} shows a simple fact, although \cref{sec:intro} could also show something else.
-
-Brackets work as designed:
-<test>
-One can also input backquotes in verbatim text: \verb|`test`|.
-
-The symbol for powerset is now correct: $\powerset$ and not a Weierstrass p ($\wp$).
-
-\begin{inparaenum}
-  \item All these items...
-  \item ...appear in one line
-  \item This is enabled by the paralist package.
-\end{inparaenum}
-
-Please use the \qq{qq command} or the \enquote{enquote command} to quote something.
-``something in quotes'' using plain tex syntax also works.
-
-You can now write words containing hyphens which are hyphenated (application"=specific) at other places.
-This is enabled by an additional configuration of the babel package.
-In case you write \qq{application-specific}, then the word will only be hyphenated at the dash.
-You can also write applica\allowbreak{}tion-specific, but this is much more effort.
-
-The words \qq{workflow} and \qq{dwarflike} can be copied from the PDF and pasted to a text file.
-
-Numbers can written plain text (such as 100), by using the siunitx package like that:
-\SI{100}{\km\per\hour},
-or by using plain \LaTeX{} (and math mode):
-$100 \frac{\mathit{km}}{h}$.
-
-\section{Conclusion and Outlook}
-\label{sec:outlook}
-\lipsum[1-2]
-
-\subsubsection*{Acknowledgments}
-\ldots
-
-In the bibliography, use \texttt{\textbackslash textsuperscript} for \qq{st}, \qq{nd}, \ldots:
-E.g., \qq{The 2\textsuperscript{nd} conference on examples}.
-When you use \href{https://www.jabref.org}{JabRef}, you can use the clean up command to achieve that.
-See \url{https://help.jabref.org/en/CleanupEntries} for an overview of the cleanup functionality.
 
 
 \renewcommand{\bibsection}{\section*{References}} % requried for natbib to have "References" printed and as section*, not chapter*
@@ -1029,6 +712,6 @@ See \url{https://help.jabref.org/en/CleanupEntries} for an overview of the clean
 % Enfore empty line after bibliography
 \ \\
 %
-All links were last followed on October 5, 2017.
+
 \end{document}
  
