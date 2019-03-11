@@ -442,6 +442,7 @@ In SMPC, normally all operations are executed in a finite field \(F_p = \{ 0,...
 Over the years different terminologies came up in the are of SMPC. Following will be a short introduction into some of them, so their definitions are clear.
 
 \subsubsection{Oblivious Transfer}
+While Oblivious Transfer (OT) is not of direct importance for this thesis, the general concept should still be known to the reader. 
 
 \subsubsection{Access structures}
 There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and for runtime complexity. SMPC should run as fast as possible, while still providing all the neccesary security guarantees.
@@ -454,20 +455,6 @@ An access structure also doesn't have to be symmetric. In some cases there might
 Choosing the right access structure for the right use case is really important, because it has a realy big impact on performance and on the desired security level.
 
 
-TODO: SOUNDNESS SLACK
-TODO: LATTICE BASED CRYPTOGRAPHY
-
-Scale-Mamba is an implementation of SPDZ among other protocols. SPDZ is right now the most efficient protocol in use. 
-
-Most LSSS-based MPC protocols split the computation into two parts: an of-
-
-ine phase, in which parties interact using expensive" public-key cryptography
-to lay the groundwork for an online phase in which only cheap" informationtheoretic
-primitives are required. The online phase is where the actual circuit
-evaluation takes place. For the access structures considered in this work, namely
-Q2 structures, the offline phase is almost as fast as the online phase. Thus the
-goal here is to minimize the cost of communication in both phases.
-
 \section{SCALE-MAMBA}\label{sec:scalemamba}
 
 \subsubsection{Overview}
@@ -476,7 +463,7 @@ In the last years, the research in SMPC is constantly ongoing, and there are new
 It is a research system that is continously in development, therefore, there is not a single final version that can be examined. It offers as well a wide range of protocols for different usecases, i.e. it is possible to use the system in different confidurations. That also means for this thesis, that there is not a single process that can be examined. Therefore, this thesis tries to give more an overview how the process works in general, which are the main, especially which are newest and best, parts and where are the problems and bottlenecks.\\
 SCALE-MAMBA consists of two parts. The one part is called Secure Computation Algorithms from LEuven (SCALE) and is the SMPC part. It contains all the computational logic and algorithms for multi-party computations. The second part is called Multiparty AlgorithMs Basic Argot (MAMBA) and is a compiler for the SMPC programs.\\
  
-In general, the SMPC protocol is split in two parts, first an offline phase and secondly and online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything. In SCALE-MAMBA, compared to its predecessors, the offline and online phase are completly integrated. Therefore, it is not possible anymore to execute them separately like in SPDZ for example. But it is a much closer approach to a real world application.\\
+In general, the SMPC protocol is split in two parts, first an offline phase and secondly and online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. In this phase the expensive calculations are done, like public key cryptography or authentifications, so that the online phase only needs basic primitives. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything. In SCALE-MAMBA, compared to its predecessors, the offline and online phase are completly integrated. Therefore, it is not possible anymore to execute them separately like in SPDZ for example. But it is a much closer approach to a real world application.\\
 
 While SCALE-MAMBA also offers different access structures, the most commonly used security configuration is active security with abort in a full threshold scheme, that means that every except one party could be corrupted, and still no information is leaked, because the evaluation is aborted.
 
@@ -547,7 +534,7 @@ Recently, an even newer improvement for the offline phase was introduced, called
 \subsubsection{Preliminaries}
 
 
-Now we assume that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So this is the heart of the system, the part where the real computatiuon is executed. 
+Now we assume that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So this is the heart of the system, the part where the real computatiuon is executed. \\
 It is important to note, that the online phase is nearly perfectly optimized when assuming the offline phase was carried out succesfully. The online phase has a runtime complexity in O(n), and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ ~\cite{cryptoeprint:2011:535}.\\
 
 
@@ -591,7 +578,12 @@ Correctness: It can be seen, that the constant is only added to one shared value
 \subsubsection{Multiplication with constant}
 Multiplicating with a public constant is as well really simple and can also be done by each party invdividually. It is defined as:\\
 $$c*\langle a\rangle=\langle c*a\rangle=(c*\delta,(c*a_1,...,c*a_n),,(c*\gamma (a)_1,...,c*\gamma (a)_n)$$
-\textbf{Correctness}:(TO BE DONE\\
+\textbf{Correctness}: We have to examine the different parts, to see each parts correctness: \\
+
+\begin{enumerate}
+\item \(  c*a = c * (a_1+....+a_n) = c*a_1+...+c*a_n \)
+\item \( \gamma (c*a) = \alpha*(c*a) = c*(\alpha * a) = c * \gamma (a) = c* ( \gamma (a)_1+...+\gamma (a)_n)  \)
+\end{enumerate}
 
 \subsubsection{Multiplication}
 
