@@ -374,7 +374,7 @@ The basic problem is how to evaluate a common function, with multiple parties ha
 This paper's main focus will lay on SCALE-MAMBA, a system developed mainly by the Katholieke Universiteit Leuven, which is one of the forerunners in SMPC and a system that combines a lot of research by different teams with the newest ongoing research to provide a platform with highly performant SMPC. Nevertheless, this paper will at first give a short introduction into the history of SMPC and will try to explain its basic technologies to the reader. It will compare SCALE-MAMBA to its predecessors and will also try to give a short comparison to other SMPC systems which use different approaches, especially considering the usability in different use cases. Ultimately, it will try to give an outlook what might be coming in the next years.\\
 
 
-\section{Cryptography Basics}\label{sec:basics}
+\section{Cryptographic Basics}\label{sec:basics}
 
 Before delving deeper into SMPC, this section will shortly recap on cryptography basics that might be unknown to the reader. These basics are not solely used by SMPC, but nevertheless, play a huge role in a lot of protocols.
 
@@ -409,67 +409,56 @@ Althought FHE has amazing properties for a lot of usecases, in praxis it is way 
 That is where Somewhat Homomorphic Encryption (SHE) becomes relevant. SHE only supports one operation, and in most cases that is addition. This takes away a lot of possibilities but, therefore, the performance gain is immense. So immense, that SHE is used a lot in practice, for example in SCALE-MAMBA.\\
 The SHE scheme used in SCALE-MAMBA, is based on the so called Brakerski-Gentry-Vaikuntanathan cryptosystem(BGV).\\
 
-\subsection{Adversary types}
-Cryptography is the science of protecting information or communication from an adversary. This adversary is normally a third party that wants to get information for his own gain or want to sabotage something because of his own interest. In the are of SMPC we we normally divide between two types of adversaries. In SMPC we expect that everyone but ourselves can be controlled by an adversary.  That means the adversary can control between one and all of the other parties with which we are communicating. The difference to the normal cryptographic adversary model is, that the adversary is one of the parties we are communicating with but not a third party that tries to intercept communication.
-\subsubsection{Honest but curious}
-This type of adversary tries to gain as much information as possible. But this adversary is obeying to the rules of our protocol, that means it is impossible to know that this party is controlled by a third entity. This adversary tries to retrieve some of the secret information from the other parties, by using all the information he gets during the execution of the protocol.
-
-\subsection{Malicious adversary}
-While this adversary also wants to gain all the information, he is not obeying to the rules of the protocol. This type of adverary can send different inputs to manipulate the results he receives. Furthermore, he wants to interrupt the whole protocol. That could mean making the computation impossible, but as well modifying his own input or his own calculations, so the final result is changed and might lead to different implications
-
-It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value. Most SMPC protocols try to guarantee safety versus both type of adveraries, bvut there are also approaches that only use passive security, i.e. only protecting versus non malicious adversaries.
-
-
-
 \section{SMPC Basics and History}\label{sec:smpc}
 
 \subsection{Beginnings}
-As we saw in the introduction, there are a lot current and much more upcoming use cases of calculating the output of a function in a distributed environment with multiple parties while at the same time keeping all the individual inputs secret. The first explorations in these fields started in the 1970s, with theoretical problems like the mental poker problem(how can two players play poker while not being in the same physical location and making sure no one is cheating) and Yaos millionaire problem(how can can two millionaires decide who is richer than the other while not revealing their wealth). \newline
+As we saw in the introduction, there are a lot current and much more upcoming use cases of calculating the output of a function in a distributed environment with multiple parties while at the same time keeping all the individual inputs secret. The first explorations in these fields started in the 1970s, with theoretical problems like the mental poker problem(how can two players play poker while not being in the same physical location and making sure no one is cheating) and Yao's millionaire problem(how can can two millionaires decide who is richer than the other while not revealing their wealth). \\
 These explorations lead to a group of basic protocols which established the area of Secure Multi-Party Computation(SMPC).\\
 
 \subsection{Problem statement}
-Formally, the SMPC problem can be stated as follows:\\
+Formally, the SMPC problem can be stated as follows:
 \begin{itemize}
-\item Given a finite field \( \mathcal{F}_p=\{0,...,p-1\}\) with the modulo operation regarding the prime p
+\item Given a finite field \( \mathcal{F}_p=\{0,...,p-1\}\) with a prime p
 \item Given \(n\) parties \(P_1,...,P_n\) participating in the computation
-\item Given \(m\) secret inputs \(x_1,...,x_m\) which are each hold by one of the parties
-\item Given a function \(f(x_1,...,x_n)\) which depends on the secret inputs
-\item Goal: Evaluating the function \(f(x_1,...,x_n)\) while guaranteeing secrecy and correctness
+\item Given \(m\) secret inputs \(x_1,...,x_m\) with each of them hold by one of the parties
+\item Given a function \(f(x_1,...,x_m)\)
+\item Goal: Evaluating the function \(f(x_1,...,x_m)\) while guaranteeing secrecy and correctness
 \end{itemize}
-Secrecy: If party \(P_i\) holds secret \(x_j\), then at the end of the evaluation no information regarding \(x_j\) is revealed to the other parties.\\
-Correctness: At the end of the computation, the result is correct.\\
+\textbf{Secrecy:} If party \(P_i\) holds secret \(x_j\), then at the end of the evaluation no information regarding \(x_j\) is revealed to the other parties.\\
+\textbf{Correctness:} At the end of the computation, the result is correct.\\\\
+In a lot of cases each party has exactly one corresponding secret input, but this is not necessarily required. There can also be parties without input and parties with multiple inputs.\\
+Now we will take a short look on two of the first protocols, which both are the basis for a whole family of SMPC schemes.
 
-
-
-
-
- Now we will take a short look on the two most famous of these protocols, which both were the basis for a whole family of algorithms established in the years to follow until today.
-
-\subsection{Yaos Garbled Circuit}
-There are typically two groups of SMPC protocols, in which most of the protocols can be categorized. One is based on garbled circuits which were first introduced by Yao in 1986 \cite{4568207}. The basic idea is, that, in a two party setting, one party, Alice, garbles the boolean circuit that has to be evaluated and sends it to the second party, Bob. Bob uses his own input, Alice's encrypted input and the garbled circuit to evaluate the circuit in an ecnrypted way. At the end they exchange the results and can compute the result this way. 
+\subsection{Yao's Garbled Circuit}
+There are typically two families, into which most of the SMPC protocols can be categorized. One is based on garbled circuits which were first introduced by Yao in 1986 \cite{4568207}. The basic idea is that, in a two party setting, one party, Alice, garbles the boolean circuit that has to be evaluated and sends it to the second party, Bob. Bob uses his own input, Alice's encrypted input and the garbled circuit to evaluate the circuit in an encrypted way. At the end they exchange the results and can compute the result this way. 
 
 \subsection{Shamirs Secret Sharing Scheme}
-This paper will not focus more on the family of garbled circuit protocols, but rather on the second family which are based on a so called Linear Secret Sharing Scheme(LSSS). 
-These type of protocols were introduced by Adi Shamir in a similiar time, in 1979 \cite{Shamir:1979:SS:359168.359176}.\\
-The basic idea of this approach is that multiple parties split their secrets into so called shares and then distribute them to the other parties. This is done by generating random polynomials with a degree depending on the security level and then calculating the shares as points in this polynomial. Computations are executed on these shares, and after the end it is possible to reconstruct the result from the different shares without revealing information about the initial secrets. This is done by using Lagrange interpolation.\\
+This paper will not further discuss the family of garbled circuit protocols, but rather the second family which are protocols based on so called Linear Secret Sharing. 
+These type of protocols were introduced by Adi Shamir at a similar time, in 1979 \cite{Shamir:1979:SS:359168.359176}.\\
+The basic idea of this approach is that multiple parties split their secrets into so called shares and then distribute them to the other parties. In Shamir's scheme this is done by generating random polynomials with a degree depending on the security level and then calculating the shares as points in this polynomial. Computations are executed on these shares, and at the end it is possible to reconstruct the result from the different shares without revealing information about the initial secrets. This is done by using Lagrange interpolation.\\
  There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the SPDZ like protocols.\\
-In SMPC, normally all operations are executed in a finite field \(F_p = \{ 0,...,p-1\}\) with a prime p. That means all operations use modulo p at the end on the result to keep the result in the field. Therefore, for now on \(F_p\) will be used and when using an exact application, then p has to be specified depending on the usecase.\\
 
+Before looking into exact implementations of linear secret sharing schemes, following, a short look will taken at the general adversary model and required basic definitions.
 
-\subsection{Terminology}
-Over the years different terminologies came up in the are of SMPC. Following will be a short introduction into some of them, so their definitions are clear.
+\subsection{Adversary Model}
+In cryptography, the adversary which is considered is normally a third party that wants to get information for his own gain or want to sabotage something because of his own interest. In SMPC it is expected that the adversary is not only participating as one party, but could could control multiple parties. That means a potential adversary can control between one and all but one of the parties which are participating. The difference to the normal cryptographic adversary model is, that the adversary is controlling parties that are participating in the scheme and not a third party that tries to intercept communication.\\
+In the area of SMPC there is normally a differentiation between two types of adversaries.
 
-\subsubsection{Oblivious Transfer}
-While Oblivious Transfer (OT) is not of direct importance for this thesis, the general concept should still be known to the reader. 
+\subsubsection{Honest but curious}
+The honest but curious adversary tries to gain as much information as possible while obeying to the rules of the protocol. Hence, it is impossible to know that this party is controlled by a third entity. This adversary tries to retrieve some of the secret information from the other parties, by using all the information he gets during the execution of the protocol.
+
+\subsection{Malicious adversary}
+While this adversary also wants to gain all the information, he is not obeying to the rules of the protocol. This type of adversary can send different inputs to manipulate the results he receives. Furthermore, he wants to interrupt the whole protocol. That could mean making the computation impossible, but as well modifying his own input or his own calculations, so the final result is changed and might lead to different implications
+
+It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value. Most SMPC protocols try to guarantee safety versus both type of adveraries, bvut there are also approaches that only use passive security, i.e. only protecting versus non malicious adversaries.
 
 \subsubsection{Access structures}
-There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and for runtime complexity. SMPC should run as fast as possible, while still providing all the neccesary security guarantees.
-
-To describe which party has which rights, and how many parties can be corrupted so the security can still be guaranteed, access structures were introduced.
-An access structure describes how many parties are needed to form a so called qualified set. A qualified set is a group of parties which can pool their information to extract secret information..  An access structure is called \(Q_l \) if at least l+1 parties are needed to  form a qualified set. 
-An (n,t)-threshold scheme with t<n/l means that at least t+1 parties are needed to form a qualified set. Here, n is the number of total parties, and t is number of possible adversaries while not revealing any secrets.
-A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that it secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can give needed security guarantees.
-An access structure also doesn't have to be symmetric. In some cases there might be different type of parties, where different parties have different positions or levels of trust, so it is possible to specify that some set of parties only has to have the size of 2 to form a qualified set and another one needs the size of 4.\\
+There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and, thus, for runtime complexity. SMPC should run as fast as possible, while still providing all the necessary security guarantees.\\
+To describe which party has which rights, and how many parties can be corrupted, so that the security can still be guaranteed, access structures were introduced.
+An access structure describes how many parties are needed to form a so called qualified set. A qualified set is a group of parties which can pool their information to extract secret information. An access structure is called \(Q_l \)-access structure if at least \(l+1\) parties are needed to  form a qualified set. 
+An \((n,t)\)-threshold scheme with \(t<\frac{n}{l}\) means that at least \(t+1\) parties are needed to form a qualified set. Here, \(n\) is the number of total parties, and \(t\) is number of possible adversaries while not revealing any secrets.\\
+A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that it secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can provide needed security guarantees.
+An access structure also does not have to be symmetric. In some cases there might be different type of parties, where different parties have different positions or levels of trust, so it is, for example, possible to specify that some set of parties only has to have the size of 2 to form a qualified set and another one needs the size of 4.\\
 Choosing the right access structure for the right use case is really important, because it has a realy big impact on performance and on the desired security level.
 
 
@@ -477,11 +466,11 @@ Choosing the right access structure for the right use case is really important, 
 
 \subsubsection{Overview}
 
-In the last years, the research in SMPC is constantly ongoing, and there are new approaches or improvements to old approaches appearing regulary. But most of these publications only focus on a small area of the whole picture. SCALE-MAMBA\cite{ScaleMambaDocu} is a project that tries to combine the state-of-the-art research into one system. That means, that it is offering kind of an end-to-end system for SMPC.
-It is a research system that is continously in development, therefore, there is not a single final version that can be examined. It offers as well a wide range of protocols for different usecases, i.e. it is possible to use the system in different confidurations. That also means for this thesis, that there is not a single process that can be examined. Therefore, this thesis tries to give more an overview how the process works in general, which are the main, especially which are newest and best, parts and where are the problems and bottlenecks.\\
-SCALE-MAMBA consists of two parts. The one part is called Secure Computation Algorithms from LEuven (SCALE) and is the SMPC part. It contains all the computational logic and algorithms for multi-party computations. The second part is called Multiparty AlgorithMs Basic Argot (MAMBA) and is a compiler for the SMPC programs.\\
+In the last years, research in SMPC is constantly ongoing, and there are new approaches or improvements to old approaches appearing regulary. But most of these publications only focus on a small area of the whole picture. SCALE-MAMBA\cite{ScaleMambaDocu} is a project that tries to combine the state-of-the-art research into one system. That means that it is offering an end-to-end system for SMPC.\\
+It is a research system that is continuously in development, therefore, there is not a single final version that can be examined. It offers a wide range of protocols for different use cases, i.e. it is possible to use the system in different configurations. That also means for this paper, that there is not a single protocol that can be examined. Thus, this paper tries to give more of an overview how the process works in general, which are the main, especially which are newest and best, components and where are the problems and bottlenecks.\\ 
+SCALE-MAMBA consists of two parts. One part is called Secure Computation Algorithms from LEuven (SCALE) and is the SMPC part. It contains all the computational logic and algorithms for multi-party computations. The second part is called Multiparty AlgorithMs Basic Argot (MAMBA) and is a compiler for the SMPC programs.\\
  
-In general, the SMPC protocol is split in two parts, first an offline phase and secondly and online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. In this phase the expensive calculations are done, like public key cryptography or authentifications, so that the online phase only needs basic primitives. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything. In SCALE-MAMBA, compared to its predecessors, the offline and online phase are completly integrated. Therefore, it is not possible anymore to execute them separately like in SPDZ for example. But it is a much closer approach to a real world application.\\
+In general, the SCALE protocol is split in two parts, first an offline phase and afterwards an online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. In this phase the expensive calculations are done, like public key cryptography or authentifications, so that the online phase only needs basic primitives. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything. In SCALE-MAMBA, compared to its predecessors, the offline and online phase are completly integrated. Therefore, it is not possible anymore to execute them separately like in SPDZ for example. But it is a much closer approach to a real world application.\\
 
 While SCALE-MAMBA also offers different access structures, the most commonly used security configuration is active security with abort in a full threshold scheme, that means that every except one party could be corrupted, and still no information is leaked, because the evaluation is aborted.
 
