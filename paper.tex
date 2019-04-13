@@ -361,22 +361,22 @@
 \maketitle
 
 \begin{abstract}
-  This thesis takes a look at SMPC especally using SCALE-MAMBA. For that it introduces first what SMPC is,  how SPDZ the precessor of SCALE-MAMBA works and what are the differences. It discusses the functionalities of SCALE-MAMBA, especially the split into online and offline phase, how the beaver tripels are used for sacrificing and in which complexity classes the calculations are done. Finally it compares scale mamba shortly to other competitors in the market and gives an outlook what next technologies are coming right now and are coming in the near future in SMPC.
+This paper takes a look at Secure Multi-Party Computation(SMPC), especially using SCALE-MAMBA. For that, it introduces first what SMPC is, how SPDZ, the predecessor of SCALE-MAMBA, works and what are the differences. It discusses the functionalities of SCALE-MAMBA, especially the split into online and offline phase, how the beaver tripels are used for sacrificing and in which complexity classes the calculations are done. Finally it compares scale mamba shortly to other competitors in the market and gives an outlook what next technologies are coming right now and are coming in the near future in SMPC.
 \end{abstract}
 
 \section{Motivation and Introduction}\label{sec:intromoti}
 
-In todays world, and even more in the future, there are a lot of computations that have to be done in a distributed environment, this might be because there are different parties involved, but also because the amount of data is getting so big that it becomes impossible to have a single entity that processes all the data at once. Furthermore, in a lot of these cases the parties participating in these computations don't want to reveal their own information, because its sensitive or because they don't want to share information with a lot of business value.\\
-A basic example is an anonymized voting. In most elections there is a third party that has to aggregate and count the votings made by the votings. For instance in germanys elections this is done by specific people counting a small group of votes and then forwarding the information. The other problem is that it has to be guaranteed that a vote is valid, meaning that the voter has the right to vote and is only voting one time. So if there would be a malicious person in the system, it would be easy for that person to figure out what vote a specific person made.\\
-Another use case is the exchange of medical data. Medical data of patients is highly confidential and shoudn't be publiced under n circumstances. But at the same time a lot of different hospitals or doctors have only the data from their small data set of local patients, and for making diagnosis for new patients it is helpful to compare the symptoms to the diagnosis of other doctors.\\
+In todays world, and even more in the future, there are a lot of computations that have to be done in a distributed environment, because in a lot of use cases multiple different parties are involved, but also because the amount of data is getting so big that it often becomes impossible to have a single entity that processes and stores all the data. Furthermore, in a lot of these cases the parties participating in these computations do not want to reveal their own information, because it is sensitive information or because they do not want to share information with a lot of business value.\\
+A basic example is an anonymous voting. In most elections there is a third party that has to aggregate and count the votes made by the voters. For instance, in Germany's elections this is done by specific people counting a small amount of votes and then forwarding the information to a central institution. The other problem is that it has to be guaranteed that a vote is valid, meaning that each voter holds the right to vote and is only voting one time. So if there would be a malicious person in this specific system, it would be easy for that person to gather information over a small subset of voters or even manipulate the local results.\\
+Another use case is the exchange of medical data. Medical data of patients is highly confidential and should never be published. But at the same time, a lot of different hospitals or doctors have only the data from their small data set of local patients, and for making founded diagnosis for new patients it is helpful to compare the symptoms to the diagnoses of other doctors.\\
 Secure Multi-Party Computation(SMPC) is one possible solution for these use cases. It is a field of research that emerged in the last 30 years, and is gathering a lot of speed in the last years. 
-The basic problem is how to evaluate a common function in which multiple parties have different inputs to this function, without revealing the different inputs of the parties. Although there are a lot of theoretical solutions for this problem, real-world implementations are still not perfmorming on the desired level. So in the last years the research shifted more in the area on how to make the existant solutions performant enough while still guaranteeing a desired level of security.\\
-This paper's main focus will lay on SCALE-MAMBA, a system developed mainly by the KU Leuven, which is one of the frontrunners in SMPC and a system that combines a lot of research by different teams with the newest ongoing research to provide a platform with highly performant SMPC. Nevertheless, this paper will at first give a short history of SMPC and will try to explain the basic technologies of SMPC to the reader. It will compare SCALE-MAMBA to its predecessors and will also try to give a short comparision to other SMPC systems which use different approaches, especially considering the usability in different use cases. Ultimately, it will try to give an outlook what might be coming in the next years.\\
+The basic problem is how to evaluate a common function, with multiple parties having different inputs to this function, without revealing the different inputs of the parties. Although there are a lot of theoretical solutions for this problem, real-world implementations are still not performing on the desired level. So in the last years the research shifted more into the area of how to make the existent solutions performant enough while still guaranteeing a desired level of security.\\
+This paper's main focus will lay on SCALE-MAMBA, a system developed mainly by the Katholieke Universiteit Leuven, which is one of the forerunners in SMPC and a system that combines a lot of research by different teams with the newest ongoing research to provide a platform with highly performant SMPC. Nevertheless, this paper will at first give a short introduction into the history of SMPC and will try to explain its basic technologies to the reader. It will compare SCALE-MAMBA to its predecessors and will also try to give a short comparison to other SMPC systems which use different approaches, especially considering the usability in different use cases. Ultimately, it will try to give an outlook what might be coming in the next years.\\
 
 
 \section{Cryptography Basics}\label{sec:basics}
 
-Before diving deeper into SMPC, this section will shortly recap on cryptography basics that might be unknown to the reader. These basics are not solely used by SMPC, but nevertheless, play a huge role in a lot of protocols.
+Before delving deeper into SMPC, this section will shortly recap on cryptography basics that might be unknown to the reader. These basics are not solely used by SMPC, but nevertheless, play a huge role in a lot of protocols.
 
 \subsection{Message Authentification Codes}
 Message Authentification Codes (MACs) are used to guarantee the integrity and authenticity of a message. Basically, a MAC is a tag that is generated for a message and that, if it is correct, verifies the identity of the sender and that the content of the message was not changed.\\
@@ -422,9 +422,27 @@ It is important to decide between these two types of adversary, because it shows
 
 
 \section{SMPC Basics and History}\label{sec:smpc}
+
 \subsection{Beginnings}
-As we saw in the introduction, there are a lot current and much more upcoming usecases of calculating the output of a function in a distributed environment with multiple parties while at the same time keeping all the individual inputs secret. The first explorations in these fields started in the 1970s, with theoretical problems like the mental poker problem(how can two players play poker while not being in the same physical location and making sure noone is cheating) and Yaos millionaire problem(how can can two millionaires decide who is richer than the other while not revealing their wealth). \newline
+As we saw in the introduction, there are a lot current and much more upcoming use cases of calculating the output of a function in a distributed environment with multiple parties while at the same time keeping all the individual inputs secret. The first explorations in these fields started in the 1970s, with theoretical problems like the mental poker problem(how can two players play poker while not being in the same physical location and making sure no one is cheating) and Yaos millionaire problem(how can can two millionaires decide who is richer than the other while not revealing their wealth). \newline
 These explorations lead to a group of basic protocols which established the area of Secure Multi-Party Computation(SMPC).\\
+
+\subsection{Problem statement}
+Formally, the SMPC problem can be stated as follows:\\
+\begin{itemize}
+\item Given a finite field \( \mathcal{F}_p=\{0,...,p-1\}\) with the modulo operation regarding the prime p
+\item Given \(n\) parties \(P_1,...,P_n\) participating in the computation
+\item Given \(m\) secret inputs \(x_1,...,x_m\) which are each hold by one of the parties
+\item Given a function \(f(x_1,...,x_n)\) which depends on the secret inputs
+\item Goal: Evaluating the function \(f(x_1,...,x_n)\) while guaranteeing secrecy and correctness
+\end{itemize}
+Secrecy: If party \(P_i\) holds secret \(x_j\), then at the end of the evaluation no information regarding \(x_j\) is revealed to the other parties.\\
+Correctness: At the end of the computation, the result is correct.\\
+
+
+
+
+
  Now we will take a short look on the two most famous of these protocols, which both were the basis for a whole family of algorithms established in the years to follow until today.
 
 \subsection{Yaos Garbled Circuit}
@@ -651,6 +669,18 @@ If the calculations were correct, the MAC was shared properly and not modified, 
 \subsubsection{Upcoming changes to SCALE-MAMBA}
 SCALE-MAMBA is a research system, so there will be a lot more research time spend on improving the system further. An important aspect is the usability in the practice. Because online and offline phase are integrated into each other, the complete runtime sometimes takes a lot of time. This is especially the case in full threshold access structures. Because of the integration, it is right now not possible to execute the offline phase earlier. One of the currently ongoing improvements on SCALE-MAMBA tackles exactly this problem. The developer team tries to give MAMBA the possibility to compile code just in time. That would offere the possibility, that the offline data is calculated before and then, when the need arises, a computatation could be specified in MAMBA and then intime compiled and executed, without having to wait for the expensive offline calculations.\\
 
+\section{Implementations}
+Because SCALE-MAMBA was only released in 2018, there are not a lot documented usecases in praxis. Nevertheless, because of the structural and alogirthmic similarities to the earlier versions of SPDZ, taking a look on SPDZ implementations should give a general understanding of the possible usage of SCALE-MAMBA.\\
+
+\subsection{SPDZ 2.0 in medical healthcare}
+In medical healthcare, preserving privacy plays a huge role because patient records hold highly sensitive data, thus, its a natural area for the application of privacy protecting techonologies. 
+
+
+https://www.researchgate.net/publication/328040632A\_New\_Approach\_to\_Privacy-Preserving\_Clinical\_Decision\_Support\_Systems\_for\_HIV\_Treatment
+https://arxiv.org/pdf/1901.00329.pdf
+https://www.researchgate.net/publication/324077995\_SEMBASEcure\_multi-biometric\_authentication
+
+
 
 \section{Comparison}\label{sec:comparison}
 
@@ -676,6 +706,11 @@ https://scapi.readthedocs.io/en/latest/intro.html
 Their are a lot of future applications for Secure Multiparty Computation. With the threoretical research of the early years much more turning to praxis oriented research, todays SMPC protocols, and especially the successors of SPDZ, have a bright future. With already more and more applications starting to use SMPC in systems that need to guarantee security of private data, the list will only grow more and more with the performance of the protocols and the same time the available computation power improving. \\
 With SCALE-MAMBA being one of the first performant systems that can be really used in a real time scenario, it will probably not take a lot of more years until there will be proper commercial solutions. And if big companies start to adapt and use these theoretical foundations, then, in my opinion, SMPC will be a really important tool in computer science and especially in distrbuted environments. There are a lot more possible applications that could be coming in the next years, for example in the financial branche SMPC could play a huge role.\\
 SMPC can be a technology that shapes the future, or it can be just a stepstone for a new technology to emerge. But definetly, privacy and security plays already a huge role in our society, and this will not diminish in any close future.
+
+
+https://www.researchgate.net/publication/309817066\_Cheater\_Detection\_in\_SPDZ\_Multiparty\_Computation
+https://www.researchgate.net/publication/330091440\_Breaking\_MPC\_implementations\_through\_compression
+
 
 \subsubsection{Conclusion}
 
