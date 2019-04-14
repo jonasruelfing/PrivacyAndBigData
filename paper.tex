@@ -436,7 +436,7 @@ There are typically two families, into which most of the SMPC protocols can be c
 This paper will not further discuss the family of garbled circuit protocols, but rather the second family which are protocols based on so called Linear Secret Sharing. 
 These type of protocols were introduced by Adi Shamir at a similar time, in 1979 \cite{Shamir:1979:SS:359168.359176}.\\
 The basic idea of this approach is that multiple parties split their secrets into so called shares and then distribute them to the other parties. In Shamir's scheme this is done by generating random polynomials with a degree depending on the security level and then calculating the shares as points in this polynomial. Computations are executed on these shares, and at the end it is possible to reconstruct the result from the different shares without revealing information about the initial secrets. This is done by using Lagrange interpolation.\\
- There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the SPDZ like protocols.\\
+ There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the protocols which are based on or similiar to SPDZ.\\
 
 Before looking into exact implementations of linear secret sharing schemes, following, a short look will taken at the general adversary model and required basic definitions.
 
@@ -476,6 +476,51 @@ While SCALE-MAMBA also offers different access structures, the most commonly use
 
 \subsubsection{MAMBA}
 For this paper the more interesting part is the algorithmic part. But still, the importance of the compiler shouldn't be undervalued. Because while the algorthmic foundations might be more important from a theoretical point of view, the compiler, written in C++, enables the user to really use these technologies in a system where he can rely on the security gurantees given by the algorithms. The programs can be written for MAMBA in a syntax similiar to python's. In these programs, the user can specify which security settings he wishes to use. He can specify, how he wants his SMPC to exactly be executed, and which security parameters he wants to use. MAMBA is the compiler which then translates the instruction to bytecode and executes them. MAMBA is the part that gives the system the possibility to be properly used and tested. It makes it easy, to change the parameters, to be able to execute comparable tests, and to have a abstraction level for the user.\\
+
+
+
+
+\subsubsection{Secret sharing}
+
+As mentioned before, SCALE-MAMBA, and in general similiar protocols like SPDZ, use linear secret sharing.\\
+Given party \(P_i\) which holds a secret value \( a \in \mathcal{F}_p\) and a share of the global MAC key \( \alpha\). Then \( P_i\) can additvely share \( a\) with the other \(n-1\) parties as follows:
+\begin{itemize}
+\item Choose random \(\delta_a \in \mathcal{F}_p\)
+\item Compute tag $ \gamma (a)= \alpha(a+\delta)$
+\item Choose random \(a_1,...,a_n \in \mathcal{F}_p\) so that $ a=(a_1+...+a_n)$
+\item Choose random \((\gamma (a)_1+...+\gamma (a)_n) \in \mathcal{F}_p\) so that $\gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))$
+\item Send to each party \( P_j \) \( \delta_a \) and the shares \(a_j \) and, \( \gamma (a)_j \)
+\item Now party \( P_j\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
+\end{itemize}
+
+
+In SCALE-MAMBA, this value is then represented as followin tuple:\\
+$\langle a\rangle=(\delta_a, (a_1,...,a_n),(\gamma (a)_1,...,\gamma (a)_n))$
+\\With:
+\begin{itemize}
+\item $ a=(a_1+...+a_n)$
+\item $ \gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))=\alpha(a+\delta)$
+\item Every party \( P_i\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
+
+\end{itemize}
+
+
+
+ and the corresponding tag \( \gamma(a)\). Then th
+Sharing of values:\\
+After sharing a value \( a \in F_p\), it is represented as following tuple:\\
+$\langle a\rangle=(\delta_a, (a_1,...,a_n),(\gamma (a)_1,...,\gamma (a)_n))$
+\\With:
+\begin{itemize}
+\item $ a=(a_1+...+a_n)$
+\item $ \gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))=\alpha(a+\delta)$
+\item Every party \( P_i\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
+
+\end{itemize}
+
+
+Partially opening  of values: All players send their respective shares of a value, but not the MAC value, to one chosen party \(P_i\) which summs up all values and then broadcasts the result. In praxis this party is changing for every opening to balance the workload.\\
+Fully opening of values: In this case all players broadcast their respective shares and the respective MACs to all players, so all players can verify the result.\\
 
 
 \subsubsection{Offline phase}
@@ -541,8 +586,8 @@ Recently, an even newer improvement for the offline phase was introduced, called
 \subsubsection{Preliminaries}
 
 
-Now we assume that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So this is the heart of the system, the part where the real computatiuon is executed. \\
-It is important to note, that the online phase is nearly perfectly optimized when assuming the offline phase was carried out succesfully. The online phase has a runtime complexity in O(n), and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ ~\cite{cryptoeprint:2011:535}.\\
+Now it is assumed that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So this is the heart of the system, the part where the real computatiuon is executed. \\
+It is important to note, that the online phase is nearly perfectly optimized when assuming the offline phase was carried out succesfully. The online phase has a runtime complexity in O(n), and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ  ~\cite{cryptoeprint:2011:535}.\\
 
 
 We assume following preliminaries are given after the execution of the offline phase:\\
@@ -554,7 +599,7 @@ We assume following preliminaries are given after the execution of the offline p
 
 \end{enumerate}
 
-Following, it is going to be demonstrated, how addition and multiplication are done in this environment. This is sufficient, because a group with addition and multiplication is already touring complete, so there is no need for any other operation.\\
+Following, it is going to be demonstrated, how addition and multiplication are done in this environment. This is sufficient, because a group with addition and multiplication is already touring complete, so there is no need for any other operation.  Furthermore, addition and multiplications with constants are also discussed.\\
 
 Sharing of values:\\
 After sharing a value \( a \in F_p\), it is represented as following tuple:\\
