@@ -490,8 +490,11 @@ Given party \(P_i\) which holds a secret value \( a \in \mathcal{F}_p\) and a sh
 \item Choose random \(a_1,...,a_n \in \mathcal{F}_p\) so that $ a=(a_1+...+a_n)$
 \item Choose random \((\gamma (a)_1+...+\gamma (a)_n) \in \mathcal{F}_p\) so that $\gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))$
 \item Send to each party \( P_j \) \( \delta_a \) and the shares \(a_j \) and, \( \gamma (a)_j \)
-\item Now party \( P_j\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
+\item Now each party \( P_j\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
 \end{itemize}
+
+Now the value of \(a\) and the corresponding tag \(\gamma(a)\) can only be reconstructed if, and only if, all \(n\) secret shares are known. At the same time, no bit of information regarding \(a\) is revealed, as long as not all secret shares are known.\\
+Correctness: Assume that $n-1$ secret shares are known to an adversary, so all secret shares except one $a_x \in \mathcal{F}_p $. Then the adversary can calculate SUM=A-A_x. Nevertheless, because $a_x$ was drawn from an independent distribution, knowing SUM reveals not a single bit of information about $a$.\\
 
 
 In SCALE-MAMBA, this value is then represented as followin tuple:\\
