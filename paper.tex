@@ -484,46 +484,28 @@ For this paper the more interesting part is the algorithmic part. But still, the
 
 As mentioned before, SCALE-MAMBA, and in general similiar protocols like SPDZ, use linear secret sharing.\\
 Given party \(P_i\) which holds a secret value \( a \in \mathcal{F}_p\) and a share of the global MAC key \( \alpha\). Then \( P_i\) can additvely share \( a\) with the other \(n-1\) parties as follows:
-\begin{itemize}
+\begin{enumerate}
 \item Choose random \(\delta_a \in \mathcal{F}_p\)
 \item Compute tag $ \gamma (a)= \alpha(a+\delta)$
 \item Choose random \(a_1,...,a_n \in \mathcal{F}_p\) so that $ a=(a_1+...+a_n)$
 \item Choose random \((\gamma (a)_1+...+\gamma (a)_n) \in \mathcal{F}_p\) so that $\gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))$
 \item Send to each party \( P_j \) \( \delta_a \) and the shares \(a_j \) and, \( \gamma (a)_j \)
-\item Now each party \( P_j\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
-\end{itemize}
+\item Now each party \( P_j\) holds a share of \( a\) as tuple \(\langle a_j\rangle = (\delta_a,a_j,\gamma(a)_j )\)
+\end{enumerate}
 
 Now the value of \(a\) and the corresponding tag \(\gamma(a)\) can only be reconstructed if, and only if, all \(n\) secret shares are known. At the same time, no bit of information regarding \(a\) is revealed, as long as not all secret shares are known.\\
-Correctness: Assume that $n-1$ secret shares are known to an adversary, so all secret shares except one $a_x \in \mathcal{F}_p $. Then the adversary can calculate SUM=A-A_x. Nevertheless, because $a_x$ was drawn from an independent distribution, knowing SUM reveals not a single bit of information about $a$.\\
+\textbf{Correctness:} Assume that $n-1$ secret shares are known to an adversary, so all secret shares except one $a_x \in \mathcal{F}_p $. Then the adversary can calculate $\sum_{i \neq x} a_i = a-a_x$. Nevertheless, because $a_x$ was drawn from an independent distribution and the adversary has no information over the value of \(a_x\), knowing $a-a_x$ reveals not a single bit of information about $a$.\\
 
 
-In SCALE-MAMBA, this value is then represented as followin tuple:\\
-$\langle a\rangle=(\delta_a, (a_1,...,a_n),(\gamma (a)_1,...,\gamma (a)_n))$
-\\With:
-\begin{itemize}
-\item $ a=(a_1+...+a_n)$
-\item $ \gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))=\alpha(a+\delta)$
-\item Every party \( P_i\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
+\subsubsection{Revealing secrets}
 
-\end{itemize}
+For obvious reasons, the secrets also have to be revealed again. SCALE-MAMBA uses two different types of revealing them.\\
 
-
-
- and the corresponding tag \( \gamma(a)\). Then th
-Sharing of values:\\
-After sharing a value \( a \in F_p\), it is represented as following tuple:\\
-$\langle a\rangle=(\delta_a, (a_1,...,a_n),(\gamma (a)_1,...,\gamma (a)_n))$
-\\With:
-\begin{itemize}
-\item $ a=(a_1+...+a_n)$
-\item $ \gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))=\alpha(a+\delta)$
-\item Every party \( P_i\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
-
-\end{itemize}
-
-
-Partially opening  of values: All players send their respective shares of a value, but not the MAC value, to one chosen party \(P_i\) which summs up all values and then broadcasts the result. In praxis this party is changing for every opening to balance the workload.\\
-Fully opening of values: In this case all players broadcast their respective shares and the respective MACs to all players, so all players can verify the result.\\
+\textbf{Partial Reveal}
+All players send their respective shares of a value, but not the tag share, to one chosen party \(P_i\) which summs up all values and then broadcasts the result. The tag stays secretly shared between the parties.\\
+In praxis, the party computing the value is changing for every reveal to keep the workload balanced.\\
+\textbf{Full Reveal}
+In this case all players broadcast their respective shares and the respective MACs to all players, so all players can calculate the secret and verify the result with the corresponding tag.\\
 
 
 \subsubsection{Offline phase}
@@ -598,37 +580,24 @@ We assume following preliminaries are given after the execution of the offline p
 \item There are \(n\) parties \(P_1,...,P_n\)
 \item There is a given function \(f(a_1,...,a_m)\) which the parties want to evaluate together. The inputs are secret, and each input is hold by exactly one party.
 \item There is a global MAC key \( \alpha\) that is secret to every party and additively shared, so that every party \( P_i\) has a share  \( \alpha_i\) so that  \( \alpha=\alpha_1+...+\alpha_n\)
-\item Each of the secret inputs to \(f\) is additively shared between the parties
-
+\item There are $m$ secret inputs $a_1,...,a_m$ which are each hold by exactly one party
 \end{enumerate}
 
-Following, it is going to be demonstrated, how addition and multiplication are done in this environment. This is sufficient, because a group with addition and multiplication is already touring complete, so there is no need for any other operation.  Furthermore, addition and multiplications with constants are also discussed.\\
+First, the secret inputs  $a_1,...,a_m$ are additvely shared with the other parties as described before in [Link to secret sharing in SM XXX]. So now, each party $P_j$ holds a share ${(a_i)}_j$ of every secret $a_i$.\\
 
-Sharing of values:\\
-After sharing a value \( a \in F_p\), it is represented as following tuple:\\
-$\langle a\rangle=(\delta_a, (a_1,...,a_n),(\gamma (a)_1,...,\gamma (a)_n))$
-\\With:
-\begin{itemize}
-\item $ a=(a_1+...+a_n)$
-\item $ \gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))=\alpha(a+\delta)$
-\item Every party \( P_i\) holds a share of \( a\) as tuple \(\langle a_i\rangle = (\delta_a,a_i,\gamma(a)_i )\)
-
-\end{itemize}
-
-
-
+Following, it is going to be demonstrated, how addition and multiplication are done in this environment. These two operations are sufficient, because a group with addition and multiplication is already touring complete, so there is no need for any other operation[TODO: ADD reference]. Furthermore, addition and multiplications with constants are also discussed, because they can be done in a simple way that saves computation time.\\
 
 \subsubsection{Addition}
-Assumed there are two values \( a\) and \( b\) which should be added together and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has a share \( \langle a_i\rangle\) and a share \( \langle b_i\rangle\).\\
+Assumed there are two values \( a\) and \( b\) which should be added together, and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has a share \( \langle a_i\rangle\) and a share \( \langle b_i\rangle\).\\
 
 Then every party \( P_i\) adds up their local shares, so that:\\
 $$\langle c_i\rangle=\langle a_i\rangle+\langle b_i\rangle=((\delta_a+\delta_b),(a_i+b_i),\gamma (a)_i+\gamma (b)_i))$$
-\textbf{Correctness}: Afterwards, \( c=a+b\) is obviously additively shared between the parties and can be used for further computations.\\
+\textbf{Correctness:} Afterwards, \( c=a+b\) is obviously additively shared between the parties and can be used for further computations.[TODO: Explain correctness more in detail\\ 
 
 \subsubsection{Addition with constant}
-Adding a public constant is really simple in this representation. Because \( \gamma (a)=\alpha(a+\delta)\), adding a constant \(c\) to a additively shared value \(a\) is done by:\\
+Adding a public constant $c$ to a secretly shared value $ \langle a\rangle $ is really simple in this representation. Because \( \gamma (a)=\alpha(a+\delta)\), adding a constant \( c \) to a additively shared value \( a \) is done by:\\
 $$\langle a\rangle+c=(\delta-c,(a_1+c,a_2,...,a_n),,(\gamma (a)_1,...,\gamma (a)_n)$$
-Correctness: It can be seen, that the constant is only added to one shared value and subtracted from \( \delta\). Because of that, \( \alpha(a+\delta)\) stays the same, so the same shared MAC values like before can be used. So \(a+c\) is also properly additively shared.\\
+\textbf{Correctness:} It can be seen, that the constant is only added to one shared value and subtracted from \( \delta\). Because of that, \( \alpha(a+\delta)\) stays the same, so the same shared MAC values like before can be used. So \( \langle a+c \rangle \) is also properly additively shared.\\
 
 \subsubsection{Multiplication with constant}
 Multiplicating with a public constant is as well really simple and can also be done by each party invdividually. It is defined as:\\
