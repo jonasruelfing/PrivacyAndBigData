@@ -581,6 +581,7 @@ We assume following preliminaries are given after the execution of the offline p
 \item There is a given function \(f(a_1,...,a_m)\) which the parties want to evaluate together. The inputs are secret, and each input is hold by exactly one party.
 \item There is a global MAC key \( \alpha\) that is secret to every party and additively shared, so that every party \( P_i\) has a share  \( \alpha_i\) so that  \( \alpha=\alpha_1+...+\alpha_n\)
 \item There are $m$ secret inputs $a_1,...,a_m$ which are each hold by exactly one party
+\item There is a sufficiently large queue of beaver triples which are secretly shared
 \end{enumerate}
 
 First, the secret inputs  $a_1,...,a_m$ are additvely shared with the other parties as described before in [Link to secret sharing in SM XXX]. So now, each party $P_j$ holds a share ${(a_i)}_j$ of every secret $a_i$.\\
@@ -592,28 +593,37 @@ Assumed there are two values \( a\) and \( b\) which should be added together, a
 
 Then every party \( P_i\) adds up their local shares, so that:\\
 $$\langle c_i\rangle=\langle a_i\rangle+\langle b_i\rangle=((\delta_a+\delta_b),(a_i+b_i),\gamma (a)_i+\gamma (b)_i))$$
-\textbf{Correctness:} Afterwards, \( c=a+b\) is obviously additively shared between the parties and can be used for further computations.[TODO: Explain correctness more in detail\\ 
+\textbf{Correctness:} Afterwards, \( c=a+b\) is additively shared between the parties and can be used for further computations, because when fully revealing $\langle c\rangle$ following statements hold:
+\begin{enumerate}
+\item $a+b=(a_1+...+a_n)+(b_1+...+b_n)=(a_1+b+1)+...+(a_n+b_n)=c$
+\item $\delta_a+\delta_b=\delta_c$
+\item $\gamma(a)+\gamma(b)=\alpha*(\delta_a+a)+\alpha*(\delta_b+b)=\alpha*(\delta_a+\delta_b+a+b)=\alpha*(\delta_c+c)=\gamma(c)$
+\end{enumerate}
 
 \subsubsection{Addition with constant}
-Adding a public constant $c$ to a secretly shared value $ \langle a\rangle $ is really simple in this representation. Because \( \gamma (a)=\alpha(a+\delta)\), adding a constant \( c \) to a additively shared value \( a \) is done by:\\
+Adding a public constant $c$ to a secretly shared value $ \langle a\rangle $ is really simple in this representation, because \( \gamma (a)=\alpha(a+\delta)\) holds:\\
 $$\langle a\rangle+c=(\delta-c,(a_1+c,a_2,...,a_n),,(\gamma (a)_1,...,\gamma (a)_n)$$
-\textbf{Correctness:} It can be seen, that the constant is only added to one shared value and subtracted from \( \delta\). Because of that, \( \alpha(a+\delta)\) stays the same, so the same shared MAC values like before can be used. So \( \langle a+c \rangle \) is also properly additively shared.\\
+\textbf{Correctness:} It can be seen, that the constant is only added to one share $a_1$ of the value and subtracted from \( \delta_a\). \( \langle a+c \rangle \) is properly secretly shared because:
+\begin{itemize}
+\item $a+c=(a_1+...+a_n)+c=(a+1+c)+a_2+...+a_n$
+\item \( \gamma(a)=\alpha*(a+\delta_a)=\alpha*((a+c)+(\delta_a-c))=\gamma(a+c)\)
+\end{itemize}
 
 \subsubsection{Multiplication with constant}
-Multiplicating with a public constant is as well really simple and can also be done by each party invdividually. It is defined as:\\
-$$c*\langle a\rangle=\langle c*a\rangle=(c*\delta,(c*a_1,...,c*a_n),,(c*\gamma (a)_1,...,c*\gamma (a)_n)$$
-\textbf{Correctness}: We have to examine the different parts, to see each parts correctness: \\
-
+Multiplication with a public constant is as well really simple, and can also be done by each party individually without any communication between the parties. It is defined as:\\
+$$c*\langle a\rangle=\langle c*a\rangle=(c*\delta,(c*a_1,...,c*a_n),(c*\gamma (a)_1,...,c*\gamma (a)_n)$$
+\textbf{Correctness}: We have to examine the different parts, to see each parts correctness:
 \begin{enumerate}
 \item \(  c*a = c * (a_1+....+a_n) = c*a_1+...+c*a_n \)
-\item \( \gamma (c*a) = \alpha*(c*a) = c*(\alpha * a) = c * \gamma (a) = c* ( \gamma (a)_1+...+\gamma (a)_n)  \)
+\item \( c*\gamma (a)_1+...+c*\gamma (a)_n=c*\gamma (a) = c*(\alpha*(a+\delta_a)) = \alpha*(c*a+c*\delta_a))=\gamma(c*a)\)
 \end{enumerate}
 
 \subsubsection{Multiplication}
 
-Multiplication is the only operation,except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
-Assumed there are two values \( a\) and \( b\) which should be multipled with each other. Naturally, each party has the shares \(\langle a_i\rangle \) and \(\langle b_i\rangle \).\\
+Multiplication is the only operation, except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
+Assumed there are two secretly shared values \( \langle a \rangle\) and \( \langle b \rangle\) which should be multiplied with each other. Naturally, each party has the shares \(\langle a_i\rangle \) and \(\langle b_i\rangle \).\\
 For each multiplication operation, we need one of the Beaver triples \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing it. Both triples are additively shared between all parties like the input values. In SPDZ both triples are completly unrelated to each other, and the sacrificing is done as follows:\\
+
 
 
 \begin{enumerate}
@@ -624,8 +634,7 @@ For each multiplication operation, we need one of the Beaver triples \( (\langle
 \end{enumerate}
 
 
-Partially opening  of values: All players send their respective shares of a value, but not the MAC value, to one chosen party \(P_i\) which summs up all values and then broadcasts the result. In praxis this party is changing for every opening to balance the workload.\\
-Fully opening of values: In this case all players broadcast their respective shares and the respective MACs to all players, so all players can verify the result.\\
+
 
 \textbf{Correctness}: If we simplify \( \phi \), we can see that every term disappears (given that the triples are proper triples):
 $$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
@@ -640,22 +649,24 @@ There is a small improvement in SCALE-MAMBA compared to SPDZ regarding the tripl
 In SCALE-MAMBA, this triple sacrifice is also already executed in the offline phase. But for consistency the explanation remains here, to better be able to see the difference between SPDZ and SCALE-MAMBA.\\
 
 
-Now in the next step the multiplication of \(\langle a \rangle \) and \(\langle b \rangle \) is executed with the help of the triple.
+Multiplication is the only operation, except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
+Assumed there are two secretly shared values \( \langle a \rangle\) and \( \langle b \rangle\) which should be multiplied with each other. Naturally, each party $P_i$ holds the shares \(\langle a_i\rangle \) and \(\langle b_i\rangle \).\\
+For each multiplication operation, one of the Beaver triples \( (\langle x \rangle ,\langle y\rangle , \langle z\rangle )\) generated in the offline phase is needed, which is taken out of the queue.\\ The multiplication is done with following protocol:
 \begin{enumerate}
-\item The parties calculate \( \epsilon = \langle a \rangle - \langle x_1 \rangle \) and partially open it
-\item The parties calculate \( \delta = \langle b \rangle - \langle y_1 \rangle \) and partially open it
-\item The parties calculate \( \langle c \rangle \langle z_1 \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta \) 
+\item The parties calculate \( \epsilon = \langle a \rangle - \langle x \rangle \) and partially open it
+\item The parties calculate \( \delta = \langle b \rangle - \langle y \rangle \) and partially open it
+\item The parties calculate \( \langle c \rangle \langle z \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta \) 
 \end{enumerate}
 Correctness: 
-$$  \langle a \rangle * \langle b \rangle = \langle (a-x_1+x_1) \rangle * \langle (b-y_1+y_1) \rangle$$
-$$ = ( \epsilon  +\langle  x_1 \rangle ) * ( \delta  + \langle y_1 \rangle )$$
-$$ = \langle x_1 \rangle * \langle y_1 \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta =  \langle c \rangle $$
+$$  \langle a \rangle * \langle b \rangle = \langle (a-x+x) \rangle * \langle (b-y+y) \rangle$$
+$$ = ( \epsilon  +\langle  x \rangle ) * ( \delta  + \langle y \rangle )$$
+$$ = \langle x \rangle * \langle y \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta =  \langle c \rangle $$
 
-So, as we can see, the calculations are correct and at the same time no information of \(\langle a \rangle \) or \(\langle b \rangle \) was revealed.\\
+So, as we can see, the calculations are correct and at the same time no information about \(\langle a \rangle \) or \(\langle b \rangle \) was revealed.\\
 
 
 \subsubsection{Verifying Correctness}
-At the end of the computation, we have to find out the total calculated result. After all computations were executed, every party has a share of the final result \( r_i\), a share of the MAC value \( \gamma(r)_i)\) of the final result and a share of the global MAC key \( \alpha_i \). The verification is done as follows:
+At the end of the computation, we have to find out the total result $r$. After all computations were executed, every party has a share of the final result \( r_i\), a share of the tag \( \gamma(r)_i)\) of the final result and a share of the global MAC key \( \alpha_i \). The verification is done as follows:
 
 \begin{enumerate}
 \item Every party  opens their share \( r_i\) and their share of the MAC value \( \gamma(r)_i) \)
@@ -668,7 +679,14 @@ Correctness:
 $$ \sum_{i=1}^n \sigma_i =  \sum_{i=1}^n  \gamma(r)_i - \alpha_i * r $$
 $$=  \sum_{i=1}^n  \gamma(r)_i -  \sum_{i=1}^n  \alpha_i * r $$
 
-If the calculations were correct, the MAC was shared properly and not modified, and the MAC values were not modified, then the difference between both sums will be 0. If it is not 0, the protocol detects that there is a malicious adversary and aborts.\\
+If the calculations were correct, the MAC was shared properly and not modified, and the tag values were not modified, then the difference between both sums will be 0. If it is not 0, the protocol detects that there is a malicious adversary and aborts.\\
+
+\subsubsection{Rumtime Complexity}
+Addition: O(1)
+Mutliplication: O(1)
+Secret sharing: O(n) for every party.
+Be d the depth of the circuit ( 
+
 
 
 
