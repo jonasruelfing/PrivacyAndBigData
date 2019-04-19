@@ -378,7 +378,7 @@ This paper's main focus will lay on SCALE-MAMBA, a system developed mainly by th
 Before delving deeper into SMPC, this section will shortly recap on cryptography basics that might be unknown to the reader. These basics are not solely used by SMPC, but nevertheless, play a huge role in a lot of protocols.
 
 \subsection{Message Authentification Codes}
-Message Authentification Codes (MACs) are used to guarantee the integrity and authenticity of a message. Basically, a MAC is a tag that is generated for a message and that, if it is correct, verifies the identity of the sender and that the content of the message was not changed.\\
+Message Authentification Codes (MACs) are used to guarantee the integrity and authenticity of a message. Basically, a MAC is a key that is used to generate a tag for a message. This tag is used to verify the identity of the sender and that the content of the message was not changed.\\
 For using MACs we need a tupel of two algorithms \((\text{MAC},\text{VER})\):\\
 \begin{itemize}
 \item The MAC algorithm \(\text{MAC}(K,m)\rightarrow t\) takes a key \(K\) and a message \(m\) and outputs a tag \(t\)\\
@@ -391,7 +391,7 @@ In SCALE-MAMBA really simple MACs are used. We assume that we have a MAC key \( 
 $$\text{MAC}(\alpha,m)\rightarrow \alpha * m$$ 
 $$\text{VER}(\alpha,m,t)\rightarrow (1 \Leftrightarrow t = \alpha*m) $$ 
 
-These algorithm has the disadvantage of high storage complexity, but therefore it doesn't take a long time to calculate and it is possible to get the original message with just having the key and the tag. This is a property that is used for an advantage later on in the protocol.\\
+This algorithm has the disadvantage of high storage complexity, but therefore it doesn't take a long time to calculate and it is symmetric so the same key can be used for creating the tag and verifying it. The symmetry is used for an advantage later on in the protocol.\\
 
 
 \subsection{Homomorphic Encryption}
@@ -411,7 +411,7 @@ The SHE scheme used in SCALE-MAMBA, is based on the so called Brakerski-Gentry-V
 \section{SMPC Basics and History}\label{sec:smpc}
 
 \subsection{Beginnings}
-As we saw in the introduction, there are a lot current and much more upcoming use cases of calculating the output of a function in a distributed environment with multiple parties while at the same time keeping all the individual inputs secret. The first explorations in these fields started in the 1970s, with theoretical problems like the mental poker problem(how can two players play poker while not being in the same physical location and making sure no one is cheating) and Yao's millionaire problem(how can can two millionaires decide who is richer than the other while not revealing their wealth). \\
+As we saw in the introduction, there are a lot current and much more upcoming use cases of calculating the output of a function in a distributed environment with multiple parties while at the same time keeping all the individual inputs secret. The first explorations in these fields started in the 1970s, with theoretical problems like the mental poker problem(how can two players play poker while not being in the same physical location and making sure no one is cheating) and Yao's millionaire problem(how can can two millionaires decide who is richer than the other while not revealing their respective wealth). \\
 These explorations lead to a group of basic protocols which established the area of Secure Multi-Party Computation(SMPC).\\
 
 \subsection{Problem statement}
@@ -421,7 +421,7 @@ Formally, the SMPC problem can be stated as follows:
 \item Given \(n\) parties \(P_1,...,P_n\) participating in the computation
 \item Given \(m\) secret inputs \(x_1,...,x_m\) with each of them hold by one of the parties
 \item Given a function \(f(x_1,...,x_m)\)
-\item Goal: Evaluating the function \(f(x_1,...,x_m)\) while guaranteeing secrecy and correctness
+\item Goal: Evaluation of the function \(f(x_1,...,x_m)\) while guaranteeing secrecy and correctness
 \end{itemize}
 \textbf{Secrecy:} If party \(P_i\) holds secret \(x_j\), then at the end of the evaluation no information regarding \(x_j\) is revealed to the other parties.\\
 \textbf{Correctness:} At the end of the computation, the result is correct.\\\\
@@ -429,13 +429,13 @@ In a lot of cases each party has exactly one corresponding secret input, but thi
 Now we will take a short look on two of the first protocols, which both are the basis for a whole family of SMPC schemes.
 
 \subsection{Yao's Garbled Circuit}
-There are typically two families, into which most of the SMPC protocols can be categorized. One is based on garbled circuits which were first introduced by Yao in 1986 \cite{4568207}. The basic idea is that, in a two party setting, one party, Alice, garbles the boolean circuit that has to be evaluated and sends it to the second party, Bob. Bob uses his own input, Alice's encrypted input and the garbled circuit to evaluate the circuit in an encrypted way. At the end they exchange the results and can compute the result this way. 
+There are typically two families, into which most of the SMPC protocols can be categorized. One is based on garbled circuits which were first introduced by Yao in 1986 \cite{4568207}. The basic idea is that, in a two party setting, one party, Alice, garbles the Boolean circuit that has to be evaluated and sends it to the second party, Bob. Bob uses his own input, Alice's encrypted input and the garbled circuit to evaluate the circuit in an encrypted way. At the end they exchange the results and can compute the result this way. 
 
 \subsection{Shamirs Secret Sharing Scheme}
 This paper will not further discuss the family of garbled circuit protocols, but rather the second family which are protocols based on so called Linear Secret Sharing. 
 These type of protocols were introduced by Adi Shamir at a similar time, in 1979 \cite{Shamir:1979:SS:359168.359176}.\\
 The basic idea of this approach is that multiple parties split their secrets into so called shares and then distribute them to the other parties. In Shamir's scheme this is done by generating random polynomials with a degree depending on the security level and then calculating the shares as points in this polynomial. Computations are executed on these shares, and at the end it is possible to reconstruct the result from the different shares without revealing information about the initial secrets. This is done by using Lagrange interpolation.\\
- There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the protocols which are based on or similiar to SPDZ.\\
+There is a huge family of protocols build on this approach, and it is still evolving every day. This paper will focus on the newest of these protocols that were developed in the last 10 years, especially on the protocols which are based on or similar to SPDZ.\\
 
 Before looking into exact implementations of linear secret sharing schemes, following, a short look will taken at the general adversary model and required basic definitions.
 
