@@ -510,73 +510,32 @@ In this case all players broadcast their respective shares and the respective MA
 
 \subsubsection{Offline phase}
 
-There are two main things done in the offline phase. The first one is the generation of a global MAC key $\alpha$. This MAC key is later used, to authentificate the different shares at the end of the computation. This key is also distributedly generated, i.e. only if all parties pool together their shares they can recover its value.\\
+There are two main things done in the offline phase. The first one is the generation of a global MAC key $\alpha$. This MAC key is later used, to authenticate the different shares at the end of the computation. This key is also distributively generated, i.e. only if all parties pool together their shares they can recover its value.\\
 
 
 The second and and most important part in the offline phase, is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase, but will be used in the online phase to guarantee that multiplications can be done without revealing the secret inputs of the different parties. For each multiplication, one of the triples is needed.
+
+
+
+
+
+
+
+
+
+
+
+
 
 \subsubsection{Beaver Triples}
 
 Beaver triples are triples of three numbers \((a,b,c)\), with \( a,b,c\in \mathcal{F}_p \), with \(a\) and \(b\) being chosen uniformly randomly, and \(a*b=c\).
 In the offline or pre-processing phase, the most important part is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase, but will be used in the online phase to guarantee that multiplications can be done without revealing the secret inputs of the different parties.\\
 
-For each multiplication operation in the online phase, we need one of the Beaver triples \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing it. Both triples are additively shared between all parties like the input values. In SPDZ both triples are completly unrelated to each other, and the sacrificing is done as follows:\\
+For each multiplication operation in the online phase, we need one of the Beaver triples \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing it. Both triples are additively shared between all parties like the input values. In SPDZ both triples are completely unrelated to each other, and the sacrificing is done as follows:\\
 
 
-Sacrificing of triples
-Even though the triples are generated and each party holds the respective shares, there is still an allowed error \(e\) for each triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) so that \(z_1=x_1*y_1+e\). To guarantee that the triples are really sound, the correctness has to be checked. This is done with a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing, which uses the second triple to guarantee the soundness of the first. In SPDZ that is done as follows:\\
-\begin{enumerate}
-\item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n\).
-\item The parties calculate  \( p=r*\langle x_1 \rangle - \langle x_2 \rangle \) and \( \sigma=\langle y_1 \rangle -  \langle y_2 \rangle \) and partially open the results afterwards
-\item The parties calculate \(\phi = r * \langle z_1 \rangle\ - \langle z_2 \rangle - \sigma * \langle x_2 \rangle - p * \langle y_2 \rangle - \sigma * p\) and then partially open the result
-\item If \( \phi \) is 0 then the triples are correct and it is proceeded with \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) as a correct, secretly shared and not revealed triple. Otherwise the system detected a malicious adversary and it aborts.\\
-\end{enumerate}
-
-Remark: As shown later in chapter [X], addition of two secretly shared values and multiplication of a secretly shared value with a public constant can be done individually by every party, so that, when later revealing the results of each party, the correct result can be computed by the parties together. Accordingly, beforehand operations can be assumed as working as seen later.
-
-\textbf{Correctness}: Simplifying \( \phi \), it can be see that every term disappears (given that the triples are proper triples):
-$$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
-$$ = t*(z_1 - x_1*y_2+x_1*y_2 -x_1*y_1) + y_1*x_2 - x_2*y_1+ x_2*y_2 - z_2 + x_2*y_2 -  x_2*y_2$$
-$$= t* (z_1 - x_1*y_1) + x_2*y_2 - z_2 $$
-Therefore, \( \phi = 0 \Leftrightarrow x_1 * y_1 = z_1 \land x_2*y_2=z_2 \), so this only holds if both triples are correct. \\
-In this process the triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle ) \) wasn't revealed, so now it can be used for the multiplication knowing that one the one hand it is still secretly shared and unknown and on the other hand that it was not modified by an adversary.\\
-
-Sacrificing of triples in SCALE-MAMBA
-
-In later versions of SPDZ, since ~\cite{cryptoeprint:2017:123}, and in the current implementations of SCALE-MAMBA, a slightly modified version of aforementioned protocol is used. The idea is to not sacrifice a random second triple, to guarantee the correctness of the first one, but to sacrifice a similar triple. For this, the triples are directly generated in pairs, so that there are are two triples \( (\langle x \rangle ,\langle y \rangle , \langle z \rangle ) \) and \( (\langle x' \rangle ,\langle y\rangle , \langle z'\rangle ) \) with $z=x*y$ and $z'=x'*y$. With $y_1=y_2$, the formula from SPDZ becomes directly much simpler.
-\begin{enumerate}
-\item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n\).
-\item The parties calculate  \( p=r*\langle x \rangle - \langle x' \rangle \) and partially open the result afterwards
-\item The parties calculate \(\phi = r * \langle z \rangle\ - \langle z' \rangle - p * \langle y \rangle\) and then partially open the result
-\item If \( \phi \) is 0 then the triples are correct and it is proceeded with \( (\langle x \rangle ,\langle y\rangle , \langle z\rangle )\) as a correct, secretly shared and not revealed triple. Otherwise the system detected a malicious adversary and it aborts.\\
-\end{enumerate}
-
-\textbf{Correctness}: Parallel to before, simplifying \( \phi \) leads to the same implications:\\
-$$\phi =r*z-z'-p*y=r*z-z'-(r*x-x')*y=r*(z-x*y)+(x'*y-z')$$
-Therefore, \( \phi = 0 \Leftrightarrow x * y = z \land x'*y=z' \)
-
-
-Comparison in Sacrificing
-This small improvement in the protocol nearly halved the mathematical operations necessary for the creation of one beaver triple. This is huge, because the triple generation is one of the most time consuming task, so it sped up the offline phase. In following table, the differences between both sacrificing protocols can be seen:
-
-
-
-\begin{center}
-\begin{tabular}{ | c | c | c | }
-\hline
-& SPDZ & SCALE-MAMBA \\
-\hline
- Additions & 6 & 3 \\ 
-\hline
- Multiplications with constants & 5 & 3 \\  
-\hline
-Partial reveals & 3 &2 \\
-\hline
-\end{tabular}
-\end{center}
-
-
-In SPDZ: Sacrifice in online phase???
+GENERATION OF BEAVER TRIPLES
 
 
 
@@ -587,7 +546,7 @@ In SPDZ: Sacrifice in online phase???
 \subsubsection{Zero Proofs of Knowledge}
 In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that are the so called Zero Proofs of Konwledge Protocol(ZPoKP).
 
-In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly, or atleast that they dont divert more than a specified error \(e\) the expected result.
+In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly before the sacrificing, or atleast that they dont divert more than a specified error \(e\) from the expected result.
 
 ZPoKP are a technique that was introduced  in 1985 \cite{Goldwasser:1985:KCI:22145.22178}. The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
 
@@ -631,6 +590,65 @@ Overdrive uses as well drowning, which is the technique of adding noise to a sec
 
 \subsubsection{TopGear}
 Recently, an even newer improvement for the offline phase was introduced, called TopGear \cite{cryptoeprint:2019:035}. It is implemented in SCALE-MAMBA since version 1.3\cite{ScaleMambaDocu}, which was released in January 2019. It further improved the HighGear protocol of the Overdrive implementation, by targeting specifically the ZKPoKs.
+
+
+
+\subsubsection{Sacrificing of triples}
+Even though the triples are generated and each party holds the respective shares, there is still an allowed error \(e\) for each triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) so that \(z_1=x_1*y_1+e\). To guarantee that the triples are really sound, the correctness has to be checked. This is done with a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing, which uses the second triple to guarantee the soundness of the first. In SPDZ that is done as follows:\\
+\begin{enumerate}
+\item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n\).
+\item The parties calculate  \( p=r*\langle x_1 \rangle - \langle x_2 \rangle \) and \( \sigma=\langle y_1 \rangle -  \langle y_2 \rangle \) and partially open the results afterwards
+\item The parties calculate \(\phi = r * \langle z_1 \rangle\ - \langle z_2 \rangle - \sigma * \langle x_2 \rangle - p * \langle y_2 \rangle - \sigma * p\) and then partially open the result
+\item If \( \phi \) is 0 then the triples are correct and it is proceeded with \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) as a correct, secretly shared and not revealed triple. Otherwise the system detected a malicious adversary and it aborts.\\
+\end{enumerate}
+
+Remark: As shown later in chapter [X], addition of two secretly shared values and multiplication of a secretly shared value with a public constant can be done individually by every party, so that, when later revealing the results of each party, the correct result can be computed by the parties together. Accordingly, beforehand operations can be assumed as working as seen later.
+
+\textbf{Correctness}: Simplifying \( \phi \), it can be see that every term disappears (given that the triples are proper triples):
+$$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
+$$ = t*(z_1 - x_1*y_2+x_1*y_2 -x_1*y_1) + y_1*x_2 - x_2*y_1+ x_2*y_2 - z_2 + x_2*y_2 -  x_2*y_2$$
+$$= t* (z_1 - x_1*y_1) + x_2*y_2 - z_2 $$
+Therefore, \( \phi = 0 \Leftrightarrow x_1 * y_1 = z_1 \land x_2*y_2=z_2 \), so this only holds if both triples are correct. \\
+In this process the triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle ) \) wasn't revealed, so now it can be used for the multiplication knowing that one the one hand it is still secretly shared and unknown and on the other hand that it was not modified by an adversary.\\
+
+\textbf{Sacrificing of triples in SCALE-MAMBA}
+
+In later versions of SPDZ, since ~\cite{cryptoeprint:2017:123}, and in the current implementations of SCALE-MAMBA, a slightly modified version of aforementioned protocol is used. The idea is to not sacrifice a random second triple, to guarantee the correctness of the first one, but to sacrifice a similar triple. For this, the triples are directly generated in pairs, so that there are are two triples \( (\langle x \rangle ,\langle y \rangle , \langle z \rangle ) \) and \( (\langle x' \rangle ,\langle y\rangle , \langle z'\rangle ) \) with $z=x*y$ and $z'=x'*y$. With $y_1=y_2$, the formula from SPDZ becomes directly much simpler.
+\begin{enumerate}
+\item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n\).
+\item The parties calculate  \( p=r*\langle x \rangle - \langle x' \rangle \) and partially open the result afterwards
+\item The parties calculate \(\phi = r * \langle z \rangle\ - \langle z' \rangle - p * \langle y \rangle\) and then partially open the result
+\item If \( \phi \) is 0 then the triples are correct and it is proceeded with \( (\langle x \rangle ,\langle y\rangle , \langle z\rangle )\) as a correct, secretly shared and not revealed triple. Otherwise the system detected a malicious adversary and it aborts.\\
+\end{enumerate}
+
+\textbf{Correctness}: Parallel to before, simplifying \( \phi \) leads to the same implications:\\
+$$\phi =r*z-z'-p*y=r*z-z'-(r*x-x')*y=r*(z-x*y)+(x'*y-z')$$
+Therefore, \( \phi = 0 \Leftrightarrow x * y = z \land x'*y=z' \)
+
+
+\textbf{Comparison of Sacrificing}
+This small improvement in the protocol nearly halved the mathematical operations necessary for the scarification process. This is huge, because the triple generation is one of the most time consuming task, so it sped up the offline phase. In following table, the differences between both sacrificing protocols can be seen:
+
+
+
+\begin{center}
+\begin{tabular}{ | c | c | c | }
+\hline
+& SPDZ & SCALE-MAMBA \\
+\hline
+ Additions & 6 & 3 \\ 
+\hline
+ Multiplications with constants & 5 & 3 \\  
+\hline
+Partial reveals & 3 &2 \\
+\hline
+\end{tabular}
+\end{center}
+
+
+In SPDZ: Sacrifice in online phase???
+
+
 
 
 
@@ -763,14 +781,22 @@ SCALE-MAMBA is a research system, so there will be a lot more research time spen
 Because SCALE-MAMBA was only released in 2018, there are not a lot documented usecases in praxis. Nevertheless, because of the structural and alogirthmic similarities to the earlier versions of SPDZ, taking a look on SPDZ implementations should give a general understanding of the possible usage of SCALE-MAMBA.\\
 
 \subsection{SPDZ 2.0 in medical healthcare}
-In medical healthcare, preserving privacy plays a huge role because patient records hold highly sensitive data, thus, its a natural area for the application of privacy protecting techonologies. 
+In medical healthcare, preserving privacy plays a huge role because patient records hold highly sensitive data, thus, its a natural area for the application of privacy protecting technologies. In [TODO: REFERENCE] a clinical decision support system was implemented with SPDZ 2.0. The idea is that the system provides the optimal treatment for a patient with HIV based on the  records of similar patients in different hospitals. To preserve privacy, the hospitals compute the efficiency of one treatment for one patient together with SMPC.\\
+The researchers used a setup of 20.000 patient records split between the hospitals, and were able to compute the effectiveness of 100 treatments for one patient in 24 minutes in the online phase. For calculating the effectiveness of one treatment, their algorithm needed 40 million multiplications. They only implemented the online phase of SPDZ, but showed that it scaled linearly with the amount of patient records. 
+
+TODO: CHECK HOW MANY HOSPITALS
+
+
+Supposedly, the offline phase took them around 22 minutes. 
+
+
 
 
 https://www.researchgate.net/publication/328040632A\_New\_Approach\_to\_Privacy-Preserving\_Clinical\_Decision\_Support\_Systems\_for\_HIV\_Treatment
 https://arxiv.org/pdf/1901.00329.pdf
 https://www.researchgate.net/publication/324077995\_SEMBASEcure\_multi-biometric\_authentication
 
-
+https://www.moodle.ch/lms/pluginfile.php/6253/mod\_book/chapter/25/mpc-book.pdf
 
 \section{Comparison}\label{sec:comparison}
 
