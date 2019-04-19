@@ -510,11 +510,79 @@ In this case all players broadcast their respective shares and the respective MA
 
 \subsubsection{Offline phase}
 
+There are two main things done in the offline phase. The first one is the generation of a global MAC key $\alpha$. This MAC key is later used, to authentificate the different shares at the end of the computation. This key is also distributedly generated, i.e. only if all parties pool together their shares they can recover its value.\\
 
-In the offline or pre-processing phase, the most important part is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase, but will be used in the online phase to guarantee that multiplications can be done without revealing the secret inputs of the different parties.
-Beaver triples are a tuple of three numbers \((a,b,c)\), with \( a,b,c\in \mathcal{F} )\), with \(a\) and \(b\) being chosen uniformly randomly, and \(a*b=c\).
 
-The second thing that is done in the offline phase is the generation of a global MAC key. This MAC key is later used, to authentificate the different shares at the end of the computation. This key is also distributedly generated, i.e. only if all parties pool together they can recover its value.\\
+The second and and most important part in the offline phase, is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase, but will be used in the online phase to guarantee that multiplications can be done without revealing the secret inputs of the different parties. For each multiplication, one of the triples is needed.
+
+\subsubsection{Beaver Triples}
+
+Beaver triples are triples of three numbers \((a,b,c)\), with \( a,b,c\in \mathcal{F}_p \), with \(a\) and \(b\) being chosen uniformly randomly, and \(a*b=c\).
+In the offline or pre-processing phase, the most important part is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase, but will be used in the online phase to guarantee that multiplications can be done without revealing the secret inputs of the different parties.\\
+
+For each multiplication operation in the online phase, we need one of the Beaver triples \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing it. Both triples are additively shared between all parties like the input values. In SPDZ both triples are completly unrelated to each other, and the sacrificing is done as follows:\\
+
+
+Sacrificing of triples
+Even though the triples are generated and each party holds the respective shares, there is still an allowed error \(e\) for each triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) so that \(z_1=x_1*y_1+e\). To guarantee that the triples are really sound, the correctness has to be checked. This is done with a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing, which uses the second triple to guarantee the soundness of the first. In SPDZ that is done as follows:\\
+\begin{enumerate}
+\item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n\).
+\item The parties calculate  \( p=r*\langle x_1 \rangle - \langle x_2 \rangle \) and \( \sigma=\langle y_1 \rangle -  \langle y_2 \rangle \) and partially open the results afterwards
+\item The parties calculate \(\phi = r * \langle z_1 \rangle\ - \langle z_2 \rangle - \sigma * \langle x_2 \rangle - p * \langle y_2 \rangle - \sigma * p\) and then partially open the result
+\item If \( \phi \) is 0 then the triples are correct and it is proceeded with \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) as a correct, secretly shared and not revealed triple. Otherwise the system detected a malicious adversary and it aborts.\\
+\end{enumerate}
+
+Remark: As shown later in chapter [X], addition of two secretly shared values and multiplication of a secretly shared value with a public constant can be done individually by every party, so that, when later revealing the results of each party, the correct result can be computed by the parties together. Accordingly, beforehand operations can be assumed as working as seen later.
+
+\textbf{Correctness}: Simplifying \( \phi \), it can be see that every term disappears (given that the triples are proper triples):
+$$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
+$$ = t*(z_1 - x_1*y_2+x_1*y_2 -x_1*y_1) + y_1*x_2 - x_2*y_1+ x_2*y_2 - z_2 + x_2*y_2 -  x_2*y_2$$
+$$= t* (z_1 - x_1*y_1) + x_2*y_2 - z_2 $$
+Therefore, \( \phi = 0 \Leftrightarrow x_1 * y_1 = z_1 \land x_2*y_2=z_2 \), so this only holds if both triples are correct. \\
+In this process the triple \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle ) \) wasn't revealed, so now it can be used for the multiplication knowing that one the one hand it is still secretly shared and unknown and on the other hand that it was not modified by an adversary.\\
+
+Sacrificing of triples in SCALE-MAMBA
+
+In later versions of SPDZ, since ~\cite{cryptoeprint:2017:123}, and in the current implementations of SCALE-MAMBA, a slightly modified version of aforementioned protocol is used. The idea is to not sacrifice a random second triple, to guarantee the correctness of the first one, but to sacrifice a similar triple. For this, the triples are directly generated in pairs, so that there are are two triples \( (\langle x \rangle ,\langle y \rangle , \langle z \rangle ) \) and \( (\langle x' \rangle ,\langle y\rangle , \langle z'\rangle ) \) with $z=x*y$ and $z'=x'*y$. With $y_1=y_2$, the formula from SPDZ becomes directly much simpler.
+\begin{enumerate}
+\item Choose a random variable \( r\) and open it to the other parties. This is done by each party generating a random share \(r_i\) and then calculating \(r=r_1+...+r_n\).
+\item The parties calculate  \( p=r*\langle x \rangle - \langle x' \rangle \) and partially open the result afterwards
+\item The parties calculate \(\phi = r * \langle z \rangle\ - \langle z' \rangle - p * \langle y \rangle\) and then partially open the result
+\item If \( \phi \) is 0 then the triples are correct and it is proceeded with \( (\langle x \rangle ,\langle y\rangle , \langle z\rangle )\) as a correct, secretly shared and not revealed triple. Otherwise the system detected a malicious adversary and it aborts.\\
+\end{enumerate}
+
+\textbf{Correctness}: Parallel to before, simplifying \( \phi \) leads to the same implications:\\
+$$\phi =r*z-z'-p*y=r*z-z'-(r*x-x')*y=r*(z-x*y)+(x'*y-z')$$
+Therefore, \( \phi = 0 \Leftrightarrow x * y = z \land x'*y=z' \)
+
+
+Comparison in Sacrificing
+This small improvement in the protocol nearly halved the mathematical operations necessary for the creation of one beaver triple. This is huge, because the triple generation is one of the most time consuming task, so it sped up the offline phase. In following table, the differences between both sacrificing protocols can be seen:
+
+
+
+\begin{center}
+\begin{tabular}{ | c | c | c | }
+\hline
+& SPDZ & SCALE-MAMBA \\
+\hline
+ Additions & 6 & 3 \\ 
+\hline
+ Multiplications with constants & 5 & 3 \\  
+\hline
+Partial reveals & 3 &2 \\
+\hline
+\end{tabular}
+\end{center}
+
+
+In SPDZ: Sacrifice in online phase???
+
+
+
+
+
+
 
 \subsubsection{Zero Proofs of Knowledge}
 In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that are the so called Zero Proofs of Konwledge Protocol(ZPoKP).
@@ -651,22 +719,23 @@ In SCALE-MAMBA, this triple sacrifice is also already executed in the offline ph
 
 Multiplication is the only operation, except for distributing the shares and calculating and verifying the end result, where the parties have to interact in the online phase.
 Assumed there are two secretly shared values \( \langle a \rangle\) and \( \langle b \rangle\) which should be multiplied with each other. Naturally, each party $P_i$ holds the shares \(\langle a_i\rangle \) and \(\langle b_i\rangle \).\\
-For each multiplication operation, one of the Beaver triples \( (\langle x \rangle ,\langle y\rangle , \langle z\rangle )\) generated in the offline phase is needed, which is taken out of the queue.\\ The multiplication is done with following protocol:
+For each multiplication operation, one of the secretly shared Beaver triples \( (\langle x \rangle ,\langle y\rangle , \langle z\rangle )\) generated in the offline phase is needed, which is taken out of the queue.\\ The multiplication is done with following protocol:
 \begin{enumerate}
 \item The parties calculate \( \epsilon = \langle a \rangle - \langle x \rangle \) and partially open it
 \item The parties calculate \( \delta = \langle b \rangle - \langle y \rangle \) and partially open it
-\item The parties calculate \( \langle c \rangle \langle z \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta \) 
+\item The parties calculate \( \langle c \rangle = \langle z \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta \) 
 \end{enumerate}
-Correctness: 
-$$  \langle a \rangle * \langle b \rangle = \langle (a-x+x) \rangle * \langle (b-y+y) \rangle$$
+\textbf{Correctness:} 
+$$  \langle a \rangle * \langle b \rangle = \langle ( \langle a \rangle- \langle x \rangle+ \langle x \rangle) \rangle * \langle ( \langle b \rangle- \langle y \rangle+ \langle y \rangle) \rangle$$
 $$ = ( \epsilon  +\langle  x \rangle ) * ( \delta  + \langle y \rangle )$$
 $$ = \langle x \rangle * \langle y \rangle + \epsilon * \langle b \rangle + \delta * \langle a \rangle + \epsilon * \delta =  \langle c \rangle $$
 
-So, as we can see, the calculations are correct and at the same time no information about \(\langle a \rangle \) or \(\langle b \rangle \) was revealed.\\
+As it can be seen, the computations are correct and calculate the expected result, and at the same time no information about \(\langle a \rangle \) or \(\langle b \rangle \) is revealed.\\
 
+\textbf{Runtime:} With the help of the beaver triple, it was possible to express a multiplication as a combination of 5 additions, 2 multiplications with constants and 1 multiplication of two constants by each party. Additionally two values were partially opened, but this can be done in constant time too. So a multiplication can be done in \(O(1)\).\\
 
-\subsubsection{Verifying Correctness}
-At the end of the computation, we have to find out the total result $r$. After all computations were executed, every party has a share of the final result \( r_i\), a share of the tag \( \gamma(r)_i)\) of the final result and a share of the global MAC key \( \alpha_i \). The verification is done as follows:
+\subsubsection{Determining the Result and Verifying Correctness}
+At the end of the circuit evaluation, the total result $r$ has to be computed. After all computations were executed, every party has a share of the final result \( r_i\), a share of the tag \( \gamma(r)_i)\) of the final result and a share of the global MAC key \( \alpha_i \). The verification is done as follows:
 
 \begin{enumerate}
 \item Every party  opens their share \( r_i\) and their share of the MAC value \( \gamma(r)_i) \)
@@ -681,11 +750,8 @@ $$=  \sum_{i=1}^n  \gamma(r)_i -  \sum_{i=1}^n  \alpha_i * r $$
 
 If the calculations were correct, the MAC was shared properly and not modified, and the tag values were not modified, then the difference between both sums will be 0. If it is not 0, the protocol detects that there is a malicious adversary and aborts.\\
 
-\subsubsection{Rumtime Complexity}
-Addition: O(1)
-Mutliplication: O(1)
-Secret sharing: O(n) for every party.
-Be d the depth of the circuit ( 
+\subsubsection{Runtime Complexity}
+Because all the mathematical operations can be executed in O(1) given the preliminaries from the offline phase, the mathematical evaluation of the circuit can be executed in O(d) with d being the amount of operations the circuit consists of. Additionally, each party can share a secret in O(n), so the total complexity class of the online phase is linear. Therefore, the online phase is really well scalable.\\
 
 
 
