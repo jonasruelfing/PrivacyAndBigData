@@ -368,7 +368,7 @@ This paper examines Secure Multi-Party Computation(SMPC), especially the SCALE-M
 In today's world, and even more in the future, there exist a lot of computations that have to be done in a distributed environment, because in a lot of use cases multiple parties are involved, but also because the amount of data is getting so big that it often becomes impossible to have a single entity that processes and stores all of it. Furthermore, in a lot of these cases the parties participating in these computations do not want to reveal their own information, because it is sensitive or it has a high business value.\\
 A basic example is an anonymous voting. In most elections there is a third party that has to aggregate and count the votes. For instance, in Germany's elections[TODO: LINK] this is done by specific people counting a small amount of votes and then forwarding the information to a central institution. The other problem is that it has to be guaranteed that a vote is valid, meaning that each voter holds the right to vote and is only voting one time. So in an ideal system, no person participating in the aggregation process should be able to get any information over any vote or any subset of voters.\\
 Another use case is the exchange of medical data. Medical data of patients is highly confidential and should never be published. But at the same time, a lot of different hospitals or doctors have only the data from their small data set of local patients, and for making founded diagnosis for new patients it would be helpful to compare the symptoms to the diagnoses of other doctors.\\
-Secure Multi-Party Computation(SMPC) is one possible solution for these use cases. It is a field of research that emerged in the last 30 years, and is gathering a lot of speed in the last years. 
+Secure Multi-Party Computation(SMPC) is one possible solution for these use cases. It is a field of research that emerged within the last 30 years, and is gathering a lot of speed in the last years. 
 The basic problem is the evaluation of a common function, to which multiple parties have different inputs, without revealing these inputs. Although there are a lot of theoretical solutions for this problem, real-world implementations are still not performing on the desired level. So in the last years the research shifted more into the area of how to improve the performance of existing solutions while still guaranteeing a desired level of security.\\
 This paper's main focus will lay on SCALE-MAMBA, a system developed mainly by the Katholieke Universiteit Leuven. This system is one of the forerunners in SMPC and combines a lot of research by different teams to provide a platform with highly performant SMPC. Nevertheless, this paper will at first give a short introduction into the history of SMPC and will try to explain its basic technologies to the reader. It will compare SCALE-MAMBA to its predecessors and will also try to give a short comparison to other SMPC systems which use different approaches, especially taking a look on which different requirements are fulfilled by each. Ultimately, it will try to give an outlook what might be coming in the next years.\\
 \section{SMPC Basics and History}\label{sec:smpc}
@@ -411,34 +411,34 @@ Before looking into exact implementations of linear secret sharing schemes, foll
 In cryptography, the adversary which is considered is normally a third party that wants to get information for his own gain or want to sabotage something because of his own interest. In SMPC it is expected that the adversary is not only participating as one party, but could could control multiple parties. That means a potential adversary can control between one and all but one of the parties which are participating. The difference to the normal cryptographic adversary model is, that the adversary is controlling parties that are participating in the scheme and not a third party that tries to intercept communication.\\
 In the area of SMPC there is normally a differentiation between two types of adversaries.
 \subsubsection{Honest but curious}
-The honest but curious adversary tries to gain as much information as possible while obeying to the rules of the protocol. Hence, it is impossible to know that this party is controlled by a third entity. This adversary tries to retrieve some of the secret information from the other parties, by using all the information he gets during the execution of the protocol.
+The honest but curious adversary tries to gain as much information as possible while obeying the rules of the protocol. Hence, it is impossible to know that this party is controlled by a third entity. This adversary tries to retrieve some of the secret information from the other parties, by using all the information he gets during the execution of the protocol.
 \subsubsection{Malicious adversary}
-While this adversary also wants to gain all the information, he is not obeying to the rules of the protocol. This type of adversary can send different inputs to manipulate the results he receives. Furthermore, he wants to interrupt the whole protocol. That could mean making the computation impossible, but as well modifying his own input or his own calculations, so the final result is changed and might lead to different implications
-It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value. Most SMPC protocols try to guarantee safety versus both type of adveraries, bvut there are also approaches that only use passive security, i.e. only protecting versus non malicious adversaries.
+While this adversary also wants to gain all the information, he is not obeying the rules of the protocol. This type of adversary can send different inputs to manipulate the results he receives. Furthermore, he wants to interrupt the whole protocol. That could mean making the computation impossible, but as well modifying his own input or his own calculations, so the final result is changed and might lead to different implications
+It is important to distinguish between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value. Most SMPC protocols try to guarantee safety versus both type of adveraries, bvut there are also approaches that only use passive security, i.e. only protecting versus non malicious adversaries.
 \subsection{Access structures}
 There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and, thus, for runtime complexity. SMPC should run as fast as possible, while still providing all the necessary security guarantees.\\
 To describe which party has which rights, and how many parties can be corrupted, so that the security can still be guaranteed, access structures were introduced.
 An access structure describes how many parties are needed to form a so called qualified set. A qualified set is a group of parties which can pool their information to extract secret information. An access structure is called \(Q_l \)-access structure if at least \(l+1\) parties are needed to  form a qualified set. 
-An \((n,t)\)-threshold scheme with \(t<\frac{n}{l}\) means that at least \(t+1\) parties are needed to form a qualified set. Here, \(n\) is the number of total parties, and \(t\) is number of possible adversaries while not revealing any secrets ~\cite{MPCBook_threshold}.\\
-A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that it secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can provide needed security guarantees.
+An \((n,t)\)-threshold scheme with \(t<\frac{n}{l}\) means that at least \(t+1\) parties are needed to form a qualified set. Here, \(n\) is the number of total parties, and \(t\) is the number of possible adversaries while not revealing any secrets ~\cite{MPCBook_threshold}.\\
+A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that its secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can provide needed security guarantees.
 An access structure also does not have to be symmetric. In some cases there might be different type of parties, where different parties have different positions or levels of trust, so it is, for example, possible to specify that some set of parties only has to have the size of 2 to form a qualified set and another one needs the size of 4.\\
-Choosing the right access structure for the right use case is really important, because it has a realy big impact on performance and on the desired security level.
+Choosing the right access structure for the right use case is important, because it has a big impact on performance and on the desired security level.
 
 
 \section{SCALE-MAMBA}\label{sec:scalemamba}
 
 \subsection{Overview}
 
-In the last years, research in SMPC is constantly ongoing, and there are new approaches or improvements to old approaches appearing regulary. But most of these publications only focus on a small area of the whole picture. SCALE-MAMBA\cite{ScaleMambaDocu} is a project that tries to combine the state-of-the-art research into one system. That means that it is offering an end-to-end system for SMPC.\\
-It is a research system that is continuously in development, therefore, there is not a single final version that can be examined. It offers a wide range of protocols for different use cases, i.e. it is possible to use the system in different configurations. That also means for this paper, that there is not a single protocol that can be examined. Thus, this paper tries to give more of an overview how the process works in general, which are the main, especially which are newest and best, components and where are the problems and bottlenecks.\\ 
-SCALE-MAMBA consists of two parts. One part is called Secure Computation Algorithms from LEuven (SCALE) and is the SMPC part. It contains all the computational logic and algorithms for multi-party computations. The second part is called Multiparty AlgorithMs Basic Argot (MAMBA) and is a compiler for the SMPC programs.\\
- 
-In general, the SCALE protocol is split in two parts, first an offline phase and afterwards an online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all the parties to prepare for the evaluation. This includes already calculating values for possible multiplications and MACs, so that the online phase can be executed faster. In this phase the expensive calculations are done, like public key cryptography or authentifications, so that the online phase only needs basic primitives. This phase is not completly offline, because the parties still exchange some information which are later needed for the evaluation. But this phasae is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything. In SCALE-MAMBA, compared to its predecessors, the offline and online phase are completly integrated. Therefore, it is not possible anymore to execute them separately like in SPDZ for example. But it is a much closer approach to a real world application.\\
+In the last years, research in SMPC is constantly ongoing, and there are new approaches and improvements to old approaches appearing regularly. But most of these publications only focus on a small area of the whole picture. SCALE-MAMBA\cite{ScaleMambaDocu} is a project that tries to combine the state-of-the-art research into one system. That means that it is offering an end-to-end system for SMPC.\\
+It is a research system that is continuously in development, therefore, there is not a single final version that can be examined. It offers a wide range of protocols for different use cases, i.e. it is possible to use the system in different configurations. That also means for this paper, that there is not a single protocol that can be examined. Thus, this paper tries to give more of an overview how the process works in general, which are the main, especially newest and best performing, components and where are the problems and bottlenecks.\\ 
+SCALE-MAMBA consists of two parts. One part is called Secure Computation Algorithms from LEuven (SCALE) and is the SMPC part. It contains all the computational logic and algorithms for multi-party computations. The second part is called Multiparty AlgorithMs Basic Argot (MAMBA) and is a compiler for the SMPC programs.
 
-While SCALE-MAMBA also offers different access structures, the most commonly used security configuration is active security with abort in a full threshold scheme, that means that every except one party could be corrupted, and still no information is leaked, because the evaluation is aborted.
+In general, the SCALE protocol is split in two parts, first an offline phase and afterwards an online phase. In the online phase only the final evaluation of the function is executed. In the offline phase, prior to the online phase, preparations are done by all parties to prepare for the evaluation. This already includes calculating values for possible multiplications and MACs, so that the online phase can be executed faster. In this phase the expensive calculations are done, like public key cryptography or authentications, so that the online phase only needs basic primitives. The offline phase is not completely offline, because the parties still exchange some information which are later needed for the evaluation. But this phase is not that time critically, that means it can be already executed a lot earlier than the online phase, so that, when the function evaluation is really needed, the result can be calculated in a rather fast time compared to a system that still has to set up everything. In SCALE-MAMBA, compared to its predecessors, the offline and online phase are completely integrated. Therefore, it is not possible anymore to execute them separately like in SPDZ for example. But it is a much closer approach to a real world application.\\
+
+While SCALE-MAMBA also offers different access structures, the most commonly used security configuration is active security with abort in a full threshold scheme, that means that every party except one could be corrupted, and still no information is leaked, because the evaluation is aborted.
 
 \subsection{MAMBA}
-For this paper the more interesting part is the algorithmic part. But still, the importance of the compiler shouldn't be undervalued. Because while the algorthmic foundations might be more important from a theoretical point of view, the compiler, written in C++, enables the user to really use these technologies in a system where he can rely on the security gurantees given by the algorithms. The programs can be written for MAMBA in a syntax similiar to python's. In these programs, the user can specify which security settings he wishes to use. He can specify, how he wants his SMPC to exactly be executed, and which security parameters he wants to use. MAMBA is the compiler which then translates the instruction to bytecode and executes them. MAMBA is the part that gives the system the possibility to be properly used and tested. It makes it easy, to change the parameters, to be able to execute comparable tests, and to have a abstraction level for the user.\\
+For this paper the most interesting part is the algorithmic. But still, the importance of the compiler should not be undervalued. Although the algorithmic foundations might be more important from a theoretical point of view, the compiler, written in C++, enables the user to use these technologies in a system where he can rely on the security guarantees given by the algorithms. The programs can be written for MAMBA in a syntax similar to python's. In these programs, the user can specify which security settings he wishes to use. He can specify, how he wants his SMPC to exactly be executed, and which security parameters he wants to use. MAMBA compiles the instructions to bytecode which is then executed by SCALE. MAMBA is the part that gives the system the possibility to be properly used and tested. It makes it easy to change the parameters, to execute comparable tests, and to have an abstraction level for the user.\\
 
 
 
@@ -452,12 +452,12 @@ Given party \(P_i\) which holds a secret value \( a \in \mathcal{F}_p\) and a sh
 \item Compute tag $ \gamma (a)= \alpha(a+\delta)$
 \item Choose random \(a_1,...,a_n \in \mathcal{F}_p\) so that $ a=(a_1+...+a_n)$
 \item Choose random \((\gamma (a)_1+...+\gamma (a)_n) \in \mathcal{F}_p\) so that $\gamma (a)=((\gamma (a)_1+...+\gamma (a)_n))$
-\item Send to each party \( P_j \) \( \delta_a \) and the shares \(a_j \) and, \( \gamma (a)_j \)
+\item Send  \( \delta_a \) and the respective shares \(a_j \) and \( \gamma (a)_j \) to each party \( P_j \) 
 \item Now each party \( P_j\) holds a share of \( a\) as tuple \(\langle a_j\rangle = (\delta_a,a_j,\gamma(a)_j )\)
 \end{enumerate}
 
 Now the value of \(a\) and the corresponding tag \(\gamma(a)\) can only be reconstructed if, and only if, all \(n\) secret shares are known. At the same time, no bit of information regarding \(a\) is revealed, as long as not all secret shares are known.\\
-\textbf{Correctness:} Assume that $n-1$ secret shares are known to an adversary, so all secret shares except one $a_x \in \mathcal{F}_p $. Then the adversary can calculate $\sum_{i \neq x} a_i = a-a_x$. Nevertheless, because $a_x$ was drawn from an independent distribution and the adversary has no information over the value of \(a_x\), knowing $a-a_x$ reveals not a single bit of information about $a$.\\
+\textbf{Correctness:} Assume that $n-1$ secret shares are known to an adversary, i.e. all secret shares except one $a_x \in \mathcal{F}_p $. Then the adversary can calculate $\sum_{i \neq x} a_i = a-a_x$. Nevertheless, because $a_x$ was drawn from an independent distribution and the adversary has no information over the value of \(a_x\), knowing $a-a_x$ reveals not a single bit of information about $a$.\\
 
 
 \subsection{Revealing secrets}
@@ -465,7 +465,7 @@ Now the value of \(a\) and the corresponding tag \(\gamma(a)\) can only be recon
 For obvious reasons, the secrets also have to be revealed again. SCALE-MAMBA uses two different types of revealing them.\\
 
 \textbf{Partial Reveal}
-All players send their respective shares of a value, but not the tag share, to one chosen party \(P_i\) which summs up all values and then broadcasts the result. The tag stays secretly shared between the parties.\\
+All players send their respective shares of a value, but not the tag share, to one chosen party \(P_i\) which sums up all values and then broadcasts the result. The tag stays secretly shared between the parties.\\
 In praxis, the party computing the value is changing for every reveal to keep the workload balanced.\\
 \textbf{Full Reveal}
 In this case all players broadcast their respective shares and the respective MACs to all players, so all players can calculate the secret and verify the result with the corresponding tag.\\
@@ -473,7 +473,7 @@ In this case all players broadcast their respective shares and the respective MA
 
 \subsection{Offline phase}
 
-There are two main things done in the offline phase. The first one is the generation of a global Message Authentification Code(MAC) key $\alpha$. This MAC key is later used, to authenticate the different shares at the end of the computation.\\
+There are two main things done in the offline phase. The first one is the generation of a global Message Authentication Code(MAC) key $\alpha$. This MAC key is used later, to authenticate the different shares at the end of the computation.\\
 The second and and most important part in the offline phase, is the generation of the beaver triples. These triples  are independent of the computation that is later performed in the online phase, but are used in the online phase to express multiplications as a combination of additions and multiplications with constants. For each multiplication, one of the triples is needed.
 
 
@@ -489,7 +489,10 @@ In SCALE-MAMBA really simple MACs are used. We assume that we have a MAC key \( 
 $$\text{MAC}(\alpha,m)\rightarrow \alpha * m$$ 
 $$\text{VER}(\alpha,m,t)\rightarrow (1 \Leftrightarrow t = \alpha*m) $$ 
 
-This algorithm has the disadvantage of high storage complexity, but therefore it doesn't take a long time to calculate and it is symmetric so the same key can be used for creating the tag and verifying it. The symmetry is used for an advantage later on in the protocol.\\
+
+This algorithm has the disadvantage of high storage complexity because the tag has the same size as the message, which is a difference to other MAC algorithms. But it is symmetric so the same key can be used for creating the tag and verifying it. The symmetry is used for an advantage later on in the protocol.\\
+
+
 
 The MAC key is distributively generated, i.e. only if all parties pool together their shares they can recover its value. 
 [TODO Expand on MAC generation
@@ -510,9 +513,9 @@ GENERATION OF BEAVER TRIPLES: Include protocol on how triples are distributively
 \subsubsection{Zero Proofs of Knowledge}
 In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that are the so called Zero Proofs of Konwledge Protocol(ZPoKP).
 
-In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly before the sacrificing, or atleast that they dont divert more than a specified error \(e\) from the expected result.
+In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly before the sacrificing, or at least that they dont divert more than a specified error \(e\) from the expected result.
 
-ZPoKP are a technique that was introduced  in 1985 \cite{Goldwasser:1985:KCI:22145.22178}. The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
+ZPoKP is a technique that was introduced  in 1985 \cite{Goldwasser:1985:KCI:22145.22178}. The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
 
 Assumed Alice(in this scenario called the prover) wants to prove to Bob (the verifier) that she knows \( x\) in a Field \( \mathcal{F} \), such that \(f(x)=y\). It is as well assumed, that \( f \) is homomorphic with respect to the field operations in  \( \mathcal{F} \).
 \begin{enumerate}
@@ -525,7 +528,7 @@ Assumed Alice(in this scenario called the prover) wants to prove to Bob (the ver
 \textbf{Correctness:}
 Bob wants to prove that \( z\) provided by Alice contains the proper \( x\), so that \( f(x)=y\). 
 Because f is homomorphic, obviously \( f(z)=f(s)+f(e*x)=f(s)+e*f(x)=a+e*y\) with \(f(s)=a\) and \(f(x)=y\).
-So Bob has to calculate \( a+e*y and f(z)\) with the provided \( z\) by Alice. If they are equal, he knows that Alice knows the \( x\) so that \( f(x)=y\).
+So Bob has to calculate \( a+e*y\) and \( f(z)\) with the provided \( z\) by Alice. If they are equal, he knows that Alice knows the \( x\) so that \( f(x)=y\).
 He can do that, because he got provided the \( a\) and \( z\) by Alice, he knew the \( y\) before the protocol and he chose the \( e\) himself.\\
 
 \textbf{Confidentiality:}
@@ -537,7 +540,7 @@ So under the assumption that Alice chooses a new random s each time the protcol 
 It is not really important for this thesis, which ZPoKP is exactly used, but it should be said that the protocol used in SCALE-MAMBA is based on Schnorr's protocol.\\
 
 \subsubsection{First improvement with MASCOT}
-In one of there earlier works, BDOZ, pairwise MACs were used to authentificate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorpic encryption. To guarantee the data integritym pairwise zero-knowledge proofs were used, in total O(n2) of them. 
+In one of the earlier works, BDOZ, pairwise MACs were used to authentificate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorpic encryption. To guarantee the data integritym pairwise zero-knowledge proofs were used, in total O(n2) of them. 
 In SPDZ instead of HE, SHE based on the BGV ecnryption scheme was used, reducing the amount of ZK proofs per triple by a factor of n and as well the overhead per triple, because they used a single ZKPoK for proving thousand of triples.
 Because the offline phase was the weak point of the existing SPDZ implementations, in regards to runtime while still managing a sufficiently secure system, in 2016 MASCOT \cite{cryptoeprint:2016:505} was introduced, which improved the speed of the offline phase by a magnitude of 2. MASCOT used Oblivious Transfer instead of SHE to significantly reduce the amount of communication and computation. We will not go into detail into this protocol, but rather look on its successor.
 
