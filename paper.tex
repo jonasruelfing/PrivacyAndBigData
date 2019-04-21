@@ -412,14 +412,14 @@ In cryptography, the adversary which is considered is normally a third party tha
 In the area of SMPC there is normally a differentiation between two types of adversaries.
 \subsubsection{Honest but curious}
 The honest but curious adversary tries to gain as much information as possible while obeying to the rules of the protocol. Hence, it is impossible to know that this party is controlled by a third entity. This adversary tries to retrieve some of the secret information from the other parties, by using all the information he gets during the execution of the protocol.
-\subsubsectionx{Malicious adversary}
+\subsubsection{Malicious adversary}
 While this adversary also wants to gain all the information, he is not obeying to the rules of the protocol. This type of adversary can send different inputs to manipulate the results he receives. Furthermore, he wants to interrupt the whole protocol. That could mean making the computation impossible, but as well modifying his own input or his own calculations, so the final result is changed and might lead to different implications
 It is important to decide between these two types of adversary, because it shows the different securities SMPC has to guarantee. It has to guarantee that no information is unwillingly shared with an illegal party and at the same time verify that the final result has a correct value. Most SMPC protocols try to guarantee safety versus both type of adveraries, bvut there are also approaches that only use passive security, i.e. only protecting versus non malicious adversaries.
 \subsection{Access structures}
 There are a lot of different use cases for SMPC, so of course the adversary model changes depending on the system, the security needs, and the amount of parties involved. it is important to differentiate between these different use cases, because the different needs have big implications for security measurements that have to be taken and, thus, for runtime complexity. SMPC should run as fast as possible, while still providing all the necessary security guarantees.\\
 To describe which party has which rights, and how many parties can be corrupted, so that the security can still be guaranteed, access structures were introduced.
 An access structure describes how many parties are needed to form a so called qualified set. A qualified set is a group of parties which can pool their information to extract secret information. An access structure is called \(Q_l \)-access structure if at least \(l+1\) parties are needed to  form a qualified set. 
-An \((n,t)\)-threshold scheme with \(t<\frac{n}{l}\) means that at least \(t+1\) parties are needed to form a qualified set. Here, \(n\) is the number of total parties, and \(t\) is number of possible adversaries while not revealing any secrets.\\
+An \((n,t)\)-threshold scheme with \(t<\frac{n}{l}\) means that at least \(t+1\) parties are needed to form a qualified set. Here, \(n\) is the number of total parties, and \(t\) is number of possible adversaries while not revealing any secrets ~\cite{MPCBook_threshold}.\\
 A full threshold scheme means that all parties are needed to form a qualified set. This implies, that, if all other parties except one are corrupted by an adversary, this one party can still rely on the fact that it secret remains secret. Of course this has a huge impact on overhead and performance, but in some cases it can provide needed security guarantees.
 An access structure also does not have to be symmetric. In some cases there might be different type of parties, where different parties have different positions or levels of trust, so it is, for example, possible to specify that some set of parties only has to have the size of 2 to form a qualified set and another one needs the size of 4.\\
 Choosing the right access structure for the right use case is really important, because it has a realy big impact on performance and on the desired security level.
@@ -745,7 +745,7 @@ SCALE-MAMBA is a research system, so there will be a lot more research time spen
 Because SCALE-MAMBA was only released in 2018, there are not a lot documented use cases in praxis. Nevertheless, because of the structural and algorithmic similarities to the earlier versions of SPDZ, taking a look on SPDZ implementations should give a general understanding of the possible usage of SCALE-MAMBA.\\
 
 \subsection{SPDZ 2.0 in medical healthcare}
-In medical healthcare, preserving privacy plays a huge role because patient records hold highly sensitive data, thus, its a natural area for the application of privacy protecting technologies. In [TODO: REFERENCE] a clinical decision support system was implemented with SPDZ 2.0. The idea is that the system provides the optimal treatment for a patient with HIV based on the  records of similar patients in different hospitals. To preserve privacy, the hospitals compute the efficiency of one treatment for one patient together with SMPC.\\
+In medical healthcare, preserving privacy plays a huge role because patient records hold highly sensitive data, thus, its a natural area for the application of privacy protecting technologies. In ~\cite{PPCDSS} a clinical decision support system was implemented with SPDZ 2.0. The idea is that the system provides the optimal treatment for a patient with HIV based on the  records of similar patients in different hospitals. To preserve privacy, the hospitals compute the efficiency of one treatment for one patient together with SMPC.\\
 The researchers used a setup of 20.000 patient records split between the hospitals, and were able to compute the effectiveness of 100 treatments for one patient in 24 minutes in the online phase. For calculating the effectiveness of one treatment, their algorithm needed 40 million multiplications. They only implemented the online phase of SPDZ, but showed that it scaled linearly with the amount of patient records. In the paper the amount of parties participating in the computation was not specified, but because the computation is quite good, it can be assumed that a really simple setup is used that doesn't create a lot of overhead.
 
 
@@ -755,12 +755,13 @@ TODO: CHECK HOW MANY HOSPITALS
 
 Supposedly, the offline phase took them around 22 minutes. 
 
+\subsection{Other implementations}
+
+In ~\cite{SEMBA} an implementation of biometric-based authentication, i.e. iris and face authentication, with SPDZ was shown. The researchers were able to improve existing solutions with the use of SPDZ.\\
 
 
+~\cite{2019arXiv190100329C} implemented typical machine learning algorithms like linear and logistic regression with SPDZ and showed that it outperforms a competing protocols Obliv-C ~\cite{cryptoeprint:2015:1153} and matches SecureML ~\cite{SecureML}. So it can be assumed, that an implementation with SCALE-MAMBA would show even better results.\\
 
-https://www.researchgate.net/publication/328040632A\_New\_Approach\_to\_Privacy-Preserving\_Clinical\_Decision\_Support\_Systems\_for\_HIV\_Treatment
-https://arxiv.org/pdf/1901.00329.pdf
-https://www.researchgate.net/publication/324077995\_SEMBASEcure\_multi-biometric\_authentication
 
 https://www.moodle.ch/lms/pluginfile.php/6253/mod\_book/chapter/25/mpc-book.pdf
 
@@ -780,6 +781,18 @@ c.	Factual comparisons
 SCAPI provides only passive security
 
 https://scapi.readthedocs.io/en/latest/intro.html
+
+
+While SPDZ might be the best multi party protocol, in X it was compared to tw
+
+Two party protocols
+~\cite{MPCCompression}
+In X it was shown, that SPDZ 2.- has vulnerabilities. It was compared to the three most cited two party protocols, and it was shown that for a specific attack, SPDZ is the most vulnerable of these. It was as well shown, that the secret sharing is predictable. The researchers didnt analyze, if this is still the case in SCALE-MAMBA.
+TinyLego ~\cite{TinyLego}
+Duplo ~\cite{Duplo}
+~\cite{Aby}
+
+Nevertheless, in a two party settings there are more secure protocols.
 
 
 \section{Resume}\label{sec:outlook}
