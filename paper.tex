@@ -738,8 +738,13 @@ Because all the mathematical operations can be executed in O(1) given the prelim
 
 
 
-\subsection{Upcoming changes to SCALE-MAMBA}
-SCALE-MAMBA is a research system, so there will be a lot more research time spend on improving the system further. An important aspect is the usability in the practice. Because online and offline phase are integrated into each other, the complete runtime sometimes takes a lot of time. This is especially the case in full threshold access structures. Because of the integration, it is right now not possible to execute the offline phase earlier. One of the currently ongoing improvements on SCALE-MAMBA tackles exactly this problem. The developer team tries to give MAMBA the possibility to compile code just in time as mentioned in [TODO: link to documentation]. That would offer the possibility, that the offline data is calculated before and then, when the need arises, a computation could be specified in MAMBA and then in-time compiled and executed, without having to wait for the expensive offline calculations.\\
+\subsection{Problems and upcoming changes}
+\subsubsection{Upcoming Changes}
+SCALE-MAMBA is a research system, so there will be a lot more research spend on improving the system further. An important aspect is the usability in the practice. Because online and offline phase are integrated into each other, the complete runtime sometimes takes a lot of time. This is especially the case in full threshold access structures. Because of the integration, it is right now not possible to execute the offline phase earlier. One of the currently ongoing improvements on SCALE-MAMBA tackles exactly this problem. The developer team tries to give MAMBA the possibility to compile code just in time as mentioned in ~\cite{ScaleMambaDocu}. That would offer the possibility, that the offline data is calculated before and then, when the need arises, a computation could be specified in MAMBA and in-time compiled and executed, without having to wait for the expensive offline calculations.\\
+
+\subsubsection{Problems}
+It was shown recently in ~\cite{MPCCompression} that there are security flaws in SPDZ 2.0 and that its secret sharing is predictable. It doesn't seem to be the case that these imperfections are already fixed in SCALE-MAMBA.\\
+Additionally, a single cheater can break the whole system because it is abort-secure. in ~\cite{cheaterSPDZ} an extended protocol is suggested to detect and expel cheaters if one is detected and afterwards proceed with the protocol. This would be an important feature for a real-world use case, so the protocol doesn't get stuck in a loop of abortion.
 
 \section{Implementations}
 Because SCALE-MAMBA was only released in 2018, there are not a lot documented use cases in praxis. Nevertheless, because of the structural and algorithmic similarities to the earlier versions of SPDZ, taking a look on SPDZ implementations should give a general understanding of the possible usage of SCALE-MAMBA.\\
@@ -750,69 +755,30 @@ The researchers used a setup of 20.000 patient records split between the hospita
 
 
 TODO: compare, what is the speed and how fast are different ones? 
-TODO: CHECK HOW MANY HOSPITALS
 
 
 Supposedly, the offline phase took them around 22 minutes. 
 
 \subsection{Other implementations}
-
 In ~\cite{SEMBA} an implementation of biometric-based authentication, i.e. iris and face authentication, with SPDZ was shown. The researchers were able to improve existing solutions with the use of SPDZ.\\
-
-
-~\cite{2019arXiv190100329C} implemented typical machine learning algorithms like linear and logistic regression with SPDZ and showed that it outperforms a competing protocols Obliv-C ~\cite{cryptoeprint:2015:1153} and matches SecureML ~\cite{SecureML}. So it can be assumed, that an implementation with SCALE-MAMBA would show even better results.\\
-
-
-https://www.moodle.ch/lms/pluginfile.php/6253/mod\_book/chapter/25/mpc-book.pdf
+~\cite{2019arXiv190100329C} implemented typical machine learning algorithms like linear and logistic regression with SPDZ and showed that it outperforms a competing protocol Obliv-C ~\cite{cryptoeprint:2015:1153} and matches SecureML ~\cite{SecureML}. So it can be assumed, that an implementation with SCALE-MAMBA would show even better results.\\
 
 \section{Comparison}\label{sec:comparison}
-
-
-a.	What else is out there?
-b.	Different use cases – when which SMPC tool is more useful; what are the strengths of SCALE-MAMBA compared to other ones?
-	- Security! High performant for such a secure system
-	- In some cases not the highest security is needed; application for a normal user, not for a company, have much less security requirements but much higher requirements on performance
-	- Active security is not always required, in non-critical systems it is often sufficient to know that noone knows the users data
-c.	Factual comparisons
-	- YAO/LSSS --> LSSS protocols right now are more suited for the praxis
-
-	- SCAPI
-	-SCAPI is an open-source Java library for implementing secure two-party and multiparty computation protocols (SCAPI stands for the “Secure Computation API”). It provides a reliable, 	efficient, and highly flexible cryptographic infrastructure.
-SCAPI provides only passive security
-
-https://scapi.readthedocs.io/en/latest/intro.html
-
-
-While SPDZ might be the best multi party protocol, in X it was compared to tw
-
-Two party protocols
-~\cite{MPCCompression}
-In X it was shown, that SPDZ 2.- has vulnerabilities. It was compared to the three most cited two party protocols, and it was shown that for a specific attack, SPDZ is the most vulnerable of these. It was as well shown, that the secret sharing is predictable. The researchers didnt analyze, if this is still the case in SCALE-MAMBA.
-TinyLego ~\cite{TinyLego}
-Duplo ~\cite{Duplo}
-~\cite{Aby}
-
-Nevertheless, in a two party settings there are more secure protocols.
-
+In the sector of multi party protocols with highest possible security, i.e. active and full-threshold security, SCALE-MAMBA, and before SPDZ, seem to be the universally accepted state of the art protocols. As already seen before, SCALE-MAMBA has several improvements in run-time and security compared to its predecessors.\\
+Nevertheless, the requirements are not always the same, so depending on the use-case the choice of protocol might be depend. No complete comparison to other protocols will be, but this section should transmit the parameters which should be considered when making this choice.\\
+\subsubsection{Two party protocols} There are a lot of protocols, which are restricted to a two party setup. As shown in ~\cite{MPCCompression}, frequently used protocols like TinyLEGO ~\cite{TinyLego} and  DUPLO ~\cite{Duplo}, which are both protocols based on garbled circuits, and ABY ~\cite{Aby}, which combines secret sharing and garbled circuits, all outperform SPDZ 2.0 in terms of information loss regarding compression and entropy metrics.\\
+\subsubsection{Passive Security}
+There are protocols, for instance SCAPI ~\cite{SCAPI}, which only implement passive security, i.e. they are not secure versus malicious adversaries. In a setup with looser security requirement a different protocol might be better suited because a lot of verification can be omitted.\\
+\subsubsection{Different Access structures}
+Full-threshold security is not always a desired property. While SCALE-MAMBA can be configured for different access structure, different protocols optimized for these access structures might outperform it.\\
 
 \section{Resume}\label{sec:outlook}
-
 \subsection{Outlook}
-Their are a lot of future applications for Secure Multiparty Computation. With the threoretical research of the early years much more turning to praxis oriented research, todays SMPC protocols, and especially the successors of SPDZ, have a bright future. With already more and more applications starting to use SMPC in systems that need to guarantee security of private data, the list will only grow more and more with the performance of the protocols and the same time the available computation power improving. \\
-With SCALE-MAMBA being one of the first performant systems that can be really used in a real time scenario, it will probably not take a lot of more years until there will be proper commercial solutions. And if big companies start to adapt and use these theoretical foundations, then, in my opinion, SMPC will be a really important tool in computer science and especially in distrbuted environments. There are a lot more possible applications that could be coming in the next years, for example in the financial branche SMPC could play a huge role.\\
-SMPC can be a technology that shapes the future, or it can be just a stepstone for a new technology to emerge. But definetly, privacy and security plays already a huge role in our society, and this will not diminish in any close future.
-
-
-https://www.researchgate.net/publication/309817066\_Cheater\_Detection\_in\_SPDZ\_Multiparty\_Computation
-https://www.researchgate.net/publication/330091440\_Breaking\_MPC\_implementations\_through\_compression
-
-
+There are a lot of future applications for Secure Multiparty Computation. With the theoretical research of the early years turning to more praxis-oriented research, today's SMPC protocols have a bright future. With already more and more applications starting to use SMPC in systems that need to guarantee security of private data, and with the protocols further improving in performance and security, the list will only continue growing.\\
+SCALE-MAMBA is one of the first systems that can is functional and performant enough to be used in real-world scenarios, and, thus, it will probably not take a lot more years until there will be proper commercial solutions. And if big companies start to adapt and use these theoretical foundations, then, in my opinion, SMPC will be a really important tool in computer science and especially in distributed environments. There are a lot more possible applications that could be coming in the next years, for example in the financial sector or in inter-governmental collaborations.\\
+SMPC can be a technology that shapes the future, or it can be a stepping stone for new technologies to emerge. But definitely, privacy and security already play a huge role in our society, and this will not diminish in any close future.
 \subsection{Conclusion}
-
-In this paper we could see how SMPC works in general, and, especially, how SCALE-MAMBA works and how it evolved over the years in comparison to its predecessor, SPDZ. It was shown, how the protocol is split into a primary offline phase in which the computational expensive calculations are executed and all the preparations are done for the later circuit evaluation, like calculating the Beaver Triples, and how afterwards in the online phase the circuit is evaluated, how the triples are used to execute a multiplication without sharing the secret inputs and how the results can be verified at the end. 
-
-
-
+In this paper we could see how SMPC works in general, and, especially, how SCALE-MAMBA works and how it evolved over the years in comparison to its predecessor, SPDZ. It was shown, how the protocol is split into a primary offline phase in which the computational expensive calculations are executed and all the preparations are done for the later circuit evaluation, like calculating the Beaver Triples, and how afterwards in the online phase the circuit is evaluated, how the triples are used to execute a multiplication without sharing the secret inputs and how the results can be verified at the end. Nevertheless, SCALE-MAMBA is optimized for a setup with active and full threshold security, so if the use case varies, there might be a more suitable SMPC protocol.
 
 
 \renewcommand{\bibsection}{\section*{References}} % requried for natbib to have "References" printed and as section*, not chapter*
