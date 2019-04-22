@@ -366,7 +366,7 @@ This paper examines Secure Multi-Party Computation(SMPC), especially the SCALE-M
 
 \section{Motivation and Introduction}\label{sec:intromoti}
 In today's world, and even more in the future, there exist a lot of computations that have to be done in a distributed environment, because in a lot of use cases multiple parties are involved, but also because the amount of data is getting so big that it often becomes impossible to have a single entity that processes and stores all of it. Furthermore, in a lot of these cases the parties participating in these computations do not want to reveal their own information, because it is sensitive or it has a high business value.\\
-A basic example is an anonymous voting. In most elections there is a third party that has to aggregate and count the votes. For instance, in Germany's elections[TODO: LINK] this is done by specific people counting a small amount of votes and then forwarding the information to a central institution. The other problem is that it has to be guaranteed that a vote is valid, meaning that each voter holds the right to vote and is only voting one time. So in an ideal system, no person participating in the aggregation process should be able to get any information over any vote or any subset of voters.\\
+A basic example is an anonymous voting. In most elections there is a third party that has to aggregate and count the votes. For instance in Germany's elections, this is done by specific persons counting the local votes then forwarding the information to a central institution. The other problem is that it has to be guaranteed that a vote is valid, meaning that each voter holds the right to vote and is only voting one time. So in an ideal system, no person participating in the aggregation process should be able to get any information over any vote or any subset of votersx.\\
 Another use case is the exchange of medical data. Medical data of patients is highly confidential and should never be published. But at the same time, a lot of different hospitals or doctors have only the data from their small data set of local patients, and for making founded diagnosis for new patients it would be helpful to compare the symptoms to the diagnoses of other doctors.\\
 Secure Multi-Party Computation(SMPC) is one possible solution for these use cases. It is a field of research that emerged within the last 30 years, and is gathering a lot of speed in the last years. 
 The basic problem is the evaluation of a common function, to which multiple parties have different inputs, without revealing these inputs. Although there are a lot of theoretical solutions for this problem, real-world implementations are still not performing on the desired level. So in the last years the research shifted more into the area of how to improve the performance of existing solutions while still guaranteeing a desired level of security.\\
@@ -444,6 +444,7 @@ For this paper the most interesting part is the algorithmic. But still, the impo
 
 
 \subsection{Secret sharing}
+\label{sharing}
 
 As mentioned before, SCALE-MAMBA, and in general similiar protocols like SPDZ, use linear secret sharing.\\
 Given party \(P_i\) which holds a secret value \( a \in \mathcal{F}_p\) and a share of the global MAC key \( \alpha\). Then \( P_i\) can additvely share \( a\) with the other \(n-1\) parties as follows:
@@ -507,17 +508,45 @@ For each multiplication operation in the online phase, we need one of the Beaver
 
 
 GENERATION OF BEAVER TRIPLES: Include protocol on how triples are distributively generated without revealing them
+BGV emcryption scheme
+
+For the generation of a beaver triple $(a,b,c)$ , the Brakerski-Gentry-Vaikuntanathan encryption scheme~\cite{cryptoeprint:2011:277} is used, which has homomorphic properties for addition and multiplication. It is a public key crypto system, where the parties can only decrypt an encryption together. Be $Enc_{pk}$ the encryption with the public key, and $Dec$ the distributed decryption. The triples are generated as follows:
+
+\begin{itemize}
+\item Every party $P_i$ samples a random $a_i$ and $b_i$, so that $a=a_1+...+a_n$ and $b=b_1+...+b_n$
+\item Every party computes $e_{a_i}=Enc_{pk}(a_i)$ and $e_{b__i}=Enc_{pk}()$ and broadcasts the values
+\item Every party computes $e_a=e_{a_1}+...+$
+
+\end{itemize}
+
+
+Generation described in Overdrive
+sample ai,bi
+every pair ij:
+i->j enc(ai)
+pj: cij= bj*enc(a_i)-enc'(random e)
+ci=ao*bi+
 
 
 
-\subsubsection{Zero Proofs of Knowledge}
-In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that are the so called Zero Proofs of Konwledge Protocol(ZPoKP).
+Given public key encryption, where the parties can decrypt together the result
 
-In the offline phase, ZPoKP are used to guarantee that the Beaver triples are calculated correctly before the sacrificing, or at least that they dont divert more than a specified error \(e\) from the expected result.
+random a,b shared
+enc ai, encbi, broadcast
+compute enca, encb
 
-ZPoKP is a technique that was introduced  in 1985 \cite{Goldwasser:1985:KCI:22145.22178}. The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
 
-Assumed Alice(in this scenario called the prover) wants to prove to Bob (the verifier) that she knows \( x\) in a Field \( \mathcal{F} \), such that \(f(x)=y\). It is as well assumed, that \( f \) is homomorphic with respect to the field operations in  \( \mathcal{F} \).
+random fi so that f=fi
+compute encf +encm
+dec f+m
+m1=m+f-f, mi=-fi
+
+
+
+\subsubsection{Zero-Knowledge Proofs}
+In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that is the so called Zero Proofs of Knowledge Protocol (ZPoKP). Here, they are used to guarantee that the Beaver triples are not diverting more than a specified error \(e\) from the expected value. ZPoKP is a technique that was introduced  in 1985 in~\cite{Goldwasser:1985:KCI:22145.22178}. The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
+
+Assumed Alice, who is called the prover, wants to prove to Bob, the verifier, that she knows \( x\) in a Field \( \mathcal{F} \), such that \(f(x)=y\). It is as well assumed, that \( f \) is homomorphic with respect to the field operations in  \( \mathcal{F} \).
 \begin{enumerate}
 \item Alice chooses a random \( s \in \mathcal{F} \) , calculates \( a = f(s)\) and sends \( a\) to Bob
 \item Bob samples a random  \( e \) out of  \( \mathcal{F} \) and sends it to Alice
@@ -533,31 +562,32 @@ He can do that, because he got provided the \( a\) and \( z\) by Alice, he knew 
 
 \textbf{Confidentiality:}
 We also have to make sure, that Alice did not share any information regarding her x.
-In the firt step she chose a random element s and calulated a=f(s). This information is independent on her secret x, so she didn;t share any information.
-When calculating z=s+e*x, she also didnt share any information regarding x, as long it is guaranteed that Bob didnt have any knowledge about the s.
-So under the assumption that Alice chooses a new random s each time the protcol is executed, she doesn't share any information regarding her secret x.\\
+In the first step she chose a random element s and calculated a=f(s). This information is independent on her secret x, so she did not share any information.
+When calculating z=s+e*x, she also did not share any information regarding x, as long it is guaranteed that Bob did not have any knowledge about the s.
+So under the assumption that Alice chooses a new random s each time the protocol is executed, she doesn't share any information regarding her secret x.\\
 
-It is not really important for this thesis, which ZPoKP is exactly used, but it should be said that the protocol used in SCALE-MAMBA is based on Schnorr's protocol.\\
+In SCALE-MAMBA a variant of ZPoKP similar to Schnorr's protocol~\cite{Schnorr} is used, but this paper will not examine the exact protocol.
 
-\subsubsection{First improvement with MASCOT}
-In one of the earlier works, BDOZ, pairwise MACs were used to authentificate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorpic encryption. To guarantee the data integritym pairwise zero-knowledge proofs were used, in total O(n2) of them. 
-In SPDZ instead of HE, SHE based on the BGV ecnryption scheme was used, reducing the amount of ZK proofs per triple by a factor of n and as well the overhead per triple, because they used a single ZKPoK for proving thousand of triples.
-Because the offline phase was the weak point of the existing SPDZ implementations, in regards to runtime while still managing a sufficiently secure system, in 2016 MASCOT \cite{cryptoeprint:2016:505} was introduced, which improved the speed of the offline phase by a magnitude of 2. MASCOT used Oblivious Transfer instead of SHE to significantly reduce the amount of communication and computation. We will not go into detail into this protocol, but rather look on its successor.
+\subsubsection{First improvements}
+In one of the earlier works, BDOZ~\cite{cryptoeprint:2010:514}, pairwise MACs were used to authenticate the secret sharing between the parties. It used a pairwise multiplication protocol with linear homomorphic encryption. To guarantee the data integrity, pairwise zero-knowledge proofs were used, so in total $O(n^2)$ of them, with $n$ being the numbers of parties. Because Beaver triples are created secretly shared, this accumulated a high overall run time because a lot of these triples are needed.
 
+In SPDZ, semi homomorphic encryption based on the Brakerski-Gentry-Vaikuntanathan cryptosystem~\cite{cryptoeprint:2011:277} was used. Still pairwise ZPoPKs were used, but one proof can be made to prove thousands of triples at once. This reduced the amount of proofs needed by a linear factor.
+
+Nevertheless, the offline phase was still the weak point of the existing SPDZ implementations regarding runtime complexity. In 2016 MASCOT~\cite{cryptoeprint:2016:505} was introduced, which improved the speed of the offline phase by a magnitude of 2. MASCOT used Oblivious Transfer instead of SHE to significantly reduce the amount of communication and computation. We will not go into detail into this protocol, but rather look on its successor.
+
+
+Because the offline phase was the weak point of the existing SPDZ implementations, in regards to runtime while still managing a sufficiently secure system, in 2016 MASCOT \cite{cryptoeprint:2016:505} was introduced, which improved the speed of the offline phase by a magnitude of 2. MASCOT used oblivious transfer instead of SHE to significantly reduce the amount of communication and computation. We will not go into detail into this protocol, but rather look on its successor, which is really similiar.
 
 \subsubsection{Overdrive}
-Shortly afterwards in 2017 a new protocol for the offline phase called Overdrive was introduced \cite{cryptoeprint:2017:1230}, which once again got better results with SHE instead of OT, improving the run time at least by a factor of 6. Basically, it is a really similiar protocol to MASCOT, but just uses SHE in the places where MASCOT used OT. So explaining Overdrive already should give a good impression how MASCOT works. \\
- Overdrive includes two parts, a protocol called Low Gear protocol for small numbers, and a proctocol called High Gear for larger numbers. In version 1.2 of Scale-mamba only the HighGear protocol was used, even for smaller numbers.\\
+Shortly afterwards in 2017 a new protocol for the offline phase called Overdrive was introduced in~\cite{cryptoeprint:2017:1230}, which once again used semi homomorphic encryption instead of oblivious transfer. It was able to further improve the run time of the offline phase of MASCOT by a factor of 6. Overdrive uses the same ideas that were introduced in MASCOT, but applies them to semi homomorphic encryption. It includes two parts, a protocol called Low Gear for small numbers, and a protocol called High Gear for larger numbers. In version 1.2 of Scale-mamba only the HighGear protocol was used, even for smaller numbers.\\
+The biggest difference between Overdrive and SPDZ is, that the parties not anymore prove multiple smaller statements between each other with ZKPoK, but instead make a joint statement and prove this one toegether. Because ZKPoK are computational expensive, this makes a big difference in the overall performance.\\
+This way, Overdrive did not improve the amount of communication channels used, but instead it decreased the computational costs by a linear factor.\\
+The zero proofs of knowledge allow a so called soundness slack~\cite{10.1007/978-3-319-56620-7_17}. The idea is that the proof allows a small error in the value, because it is cheaper to prove than to prove the exact value. This error is later eliminated by a technique called sacrificing the beaver triples.
 
-The biggest difference between the ZKPoK usage in Overdrive and in SPDZ is, that the parties not anymore prove multiple smaller statements between each other with ZKPoK, but instead make a joint statement and prove thi one toegether. Because ZKPoK are really expensive, this makes a big difference in the overall performance.\\
-This way, Overdrive did not improve the amount of communication channels used, but it decreased the computational costs by a factor n.\\
-A second big strategy used by SPDZ and Overdrive is the so called Soundness Slack. Because in practice it is to expensive to prove that a result is exact, so it is sufficient to prove that the value, here the product of the beaver triple, exact but with the legalization of a small error. Later on, this error, if existing and introduced by an adversary, will be detected by a different technique called sascrificing.\\
-Overdrive uses as well drowning, which is the technique of adding noise to a secret sharing. Because otherwise, the noise of the SHE function would reveal information over the secret. So the noise is drowned by introducing an additional random noise that is bigger than the maximum possible noise.\\
-
+Additionally, drowning is used in Overdrive, which is the process of adding random noise to a secret sharing so the encryption does not reveal any information over the secret. 
 
 \subsubsection{TopGear}
-Recently, an even newer improvement for the offline phase was introduced, called TopGear \cite{cryptoeprint:2019:035}. It is implemented in SCALE-MAMBA since version 1.3\cite{ScaleMambaDocu}, which was released in January 2019. It further improved the HighGear protocol of the Overdrive implementation, by targeting specifically the ZKPoKs.
-
+Recently in 2019, a further improvement for the offline phase was introduced, called TopGear \cite{cryptoeprint:2019:035}. It is implemented in SCALE-MAMBA since version 1.3\cite{ScaleMambaDocu}, which was released in January 2019. It further improved the HighGear protocol of the Overdrive implementation, by targeting specifically the ZKPoKs and increasing the security guarantees provided while maintaining roughly the same performance.
 
 
 \subsubsection{Sacrificing of triples}
@@ -569,7 +599,7 @@ Even though the triples are generated and each party holds the respective shares
 \item If \( \phi \) is 0 then the triples are correct and it is proceeded with \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) as a correct, secretly shared and not revealed triple. Otherwise the system detected a malicious adversary and it aborts.\\
 \end{enumerate}
 
-Remark: As shown later in chapter [X], addition of two secretly shared values and multiplication of a secretly shared value with a public constant can be done individually by every party, so that, when later revealing the results of each party, the correct result can be computed by the parties together. Accordingly, beforehand operations can be assumed as working as seen later.
+Remark: As shown later in chapter [TODO: X], addition of two secretly shared values and multiplication of a secretly shared value with a public constant can be done individually by every party, so that, when later revealing the results of each party, the correct result can be computed by the parties together. Accordingly, beforehand operations can be assumed as working as seen later.
 
 \textbf{Correctness}: Simplifying \( \phi \), it can be see that every term disappears (given that the triples are proper triples):
 $$\phi = t*z_1 - z_2 - y_1 + y_1*x_2 + y_2 * x_2 - t * x_1 * y_2 + x_2*y_2 - t*x_1*y_1 + t*x_1*y_2 + x_2*y_1 - x_2*y_2$$
@@ -593,10 +623,8 @@ $$\phi =r*z-z'-p*y=r*z-z'-(r*x-x')*y=r*(z-x*y)+(x'*y-z')$$
 Therefore, \( \phi = 0 \Leftrightarrow x * y = z \land x'*y=z' \)
 
 
-\textbf{Comparison of Sacrificing}
-This small improvement in the protocol nearly halved the mathematical operations necessary for the scarification process. This is huge, because the triple generation is one of the most time consuming task, so it sped up the offline phase. In following table, the differences between both sacrificing protocols can be seen:
-
-
+\subsubsection{Comparison}
+This small improvement in the protocol of sacrificing nearly halved the mathematical operations necessary for the scarification process. This is huge, because the triple generation is one of the most time consuming task, so it sped up the offline phase. In following table, the differences between both sacrificing protocols can be seen:
 
 \begin{center}
 \begin{tabular}{ | c | c | c | }
@@ -612,21 +640,14 @@ Partial reveals & 3 &2 \\
 \end{tabular}
 \end{center}
 
-
-In SPDZ: Sacrifice in online phase???
-
-
-
-
+Alone the changes in the usage of the zero knowledge proofs already improved the run time of the offline phase, in comparison between SPDZ and SCALE-MAMBA, by a factor of 1000. Together with the changes in the the sacrificing and with a lot more smaller changes that will remain undocumented in this paper, the run time of the offline phase improved by a huge margin in the last years.
 
 \subsection{Online Phase}
 
 \subsubsection{Preliminaries}
 
-
-Now it is assumed that the offline phase was succesfully executed, so all preliminaries are given to execute the online phase. It's main goal is to evaluate a specified circuit with secret inputs by the different parties. So this is the heart of the system, the part where the real computatiuon is executed. \\
-It is important to note, that the online phase is nearly perfectly optimized when assuming the offline phase was carried out succesfully. The online phase has a runtime complexity in O(n), and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ  ~\cite{cryptoeprint:2011:535}.\\
-
+After the offline phase is executed successfully, the online phase takes place, which contains the evaluation of the given function with the provided input secrets.
+It is important to note, that the online phase is nearly perfectly optimized given an earlier execution of the offline phase. The online phase has a linear run time complexity depending on the amount of operations needed for the evaluation of the function, and therefore there is not a really big performance impact. It is also noteworthy, that in the online phase only computational and no information theoretical problems are solved. All this leads to the fact, that there is not really any change in the online phase in the SPDZ like protocols in the last years, therefore the online phase is the same like in the earlier version of SPDZ  ~\cite{cryptoeprint:2011:535}.
 
 We assume following preliminaries are given after the execution of the offline phase:\\
 \begin{enumerate}
@@ -637,9 +658,9 @@ We assume following preliminaries are given after the execution of the offline p
 \item There is a sufficiently large queue of beaver triples which are secretly shared
 \end{enumerate}
 
-First, the secret inputs  $a_1,...,a_m$ are additvely shared with the other parties as described before in [Link to secret sharing in SM XXX]. So now, each party $P_j$ holds a share ${(a_i)}_j$ of every secret $a_i$.\\
+First, the secret inputs  $a_1,...,a_m$ are additvely shared with the other parties as described before in chapter \ref{sharing}. So now, each party $P_j$ holds a share ${(a_i)}_j$ of every secret $a_i$.\\
 
-Following, it is going to be demonstrated, how addition and multiplication are done in this environment. These two operations are sufficient, because a group with addition and multiplication is already touring complete, so there is no need for any other operation[TODO: ADD reference]. Furthermore, addition and multiplications with constants are also discussed, because they can be done in a simple way that saves computation time.\\
+Following, it is going to be demonstrated, how addition and multiplication are done in this environment. These two operations are sufficient, because a group with addition and multiplication is already touring complete, i.e. it is possible to express every function with a combination of additions and multiplications. Furthermore, addition and multiplications with constants are also discussed, because they can be done in a optimized way that saves computation time.
 
 \subsubsection{Addition}
 Assumed there are two values \( a\) and \( b\) which should be added together, and both are secret inputs from two different parties. Naturally, both of these values are additively shared between all the parties, i.e. every party has a share \( \langle a_i\rangle\) and a share \( \langle b_i\rangle\).\\
