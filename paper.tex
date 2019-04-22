@@ -506,42 +506,24 @@ In the offline or pre-processing phase, the most important part is the generatio
 
 For each multiplication operation in the online phase, we need one of the Beaver triples \( (\langle x_1 \rangle ,\langle y_1\rangle , \langle z_1\rangle )\) generated in the offline phase. In the offline phase we checked the quality of our triples, but we still allowed the possibility that each triple has an error \(e\) so that \(c=a*b+e\). To check the quality of our triple, we use a second triple \( (\langle x_2 \rangle ,\langle y_2\rangle ,\langle z_2\rangle )\) in a procedure called sacrificing it. Both triples are additively shared between all parties like the input values. In SPDZ both triples are completely unrelated to each other, and the sacrificing is done as follows:\\
 
+For the generation of a beaver triple $(a,b,c)$, homomorphic public key cryptography based on the Brakerski-Gentry-Vaikuntanathan encryption scheme~\cite{cryptoeprint:2011:277} is used. Every party $P_i$ generates for the communication with each party $P_j$ a set of keys $(pk_{ij},sk_{ij})$. Then, one triple is generated as follows:
 
-GENERATION OF BEAVER TRIPLES: Include protocol on how triples are distributively generated without revealing them
-BGV emcryption scheme
-
-For the generation of a beaver triple $(a,b,c)$ , the Brakerski-Gentry-Vaikuntanathan encryption scheme~\cite{cryptoeprint:2011:277} is used, which has homomorphic properties for addition and multiplication. It is a public key crypto system, where the parties can only decrypt an encryption together. Be $Enc_{pk}$ the encryption with the public key, and $Dec$ the distributed decryption. The triples are generated as follows:
-
-\begin{itemize}
-\item Every party $P_i$ samples a random $a_i$ and $b_i$, so that $a=a_1+...+a_n$ and $b=b_1+...+b_n$
-\item Every party computes $e_{a_i}=Enc_{pk}(a_i)$ and $e_{b__i}=Enc_{pk}()$ and broadcasts the values
-\item Every party computes $e_a=e_{a_1}+...+$
-
-\end{itemize}
-
-
-Generation described in Overdrive
-sample ai,bi
-every pair ij:
-i->j enc(ai)
-pj: cij= bj*enc(a_i)-enc'(random e)
-ci=ao*bi+
-
-
-
-Given public key encryption, where the parties can decrypt together the result
-
-random a,b shared
-enc ai, encbi, broadcast
-compute enca, encb
-
-
-random fi so that f=fi
-compute encf +encm
-dec f+m
-m1=m+f-f, mi=-fi
-
-
+\begin{enumerate}
+\item Every party $P_i$ samples a random $a_i$ and $b_i$; then $a=\sum_{j=1}^n a_i$ and $b=\sum_{j=1}^n b_i$
+\item Every party $P_i$ executes following protocol with each other party $P_j$:
+\begin{enumerate}
+\item $P_i$ sends $P_j$ $Enc_{pk_{ij}}(a_i)$
+\item $P_j$ samples random $e_{ij}$, calculates $g_{ij}=b_j*Enc_{pk_{ij}}(a_i)-Enc_{pk_{ij}}(e_{ij})$ and sends $g_{ij}$ it to $P_i$
+\item $P_i$ decrypts $d_{ij}=Dec_{sk_{ij}}(g_{ij})$
+\end{enumerate}
+\item Every party $P_i$ computes $c_i=a_i*b_i+\sum_{i \neq j} (e_{ij}+d_{ij})$
+\end{enumerate}
+Now, $c$ is correctly shared so that $c=c_1+...+c_n$.\\
+\textbf{Correctness:}
+$$d_{ij}=b_j*a_i-e_{ij}$$
+$$c_i=a_i*b_i+\sum_{i \neq j} (e_{ij}+d_{ij})= a_i*b_i+ \sum_{i \neq j} (b_j*a_i)$$
+$$c_i= a_i*b_i+ a_i*\sum_{i \neq j} (b_j)=a_i*(b_i+ \sum_{i \neq j} b_j)=a_i*b$$
+$$c=c_1+...+c_n=a_1*b+...+a_n*b=(a_1+...+a_n)*b=a*b$$
 
 \subsubsection{Zero-Knowledge Proofs}
 In the many iterations of the SPDZ like protocols, there were different ways to guarantee that the parties are not cheating. An important technology for that is the so called Zero Proofs of Knowledge Protocol (ZPoKP). Here, they are used to guarantee that the Beaver triples are not diverting more than a specified error \(e\) from the expected value. ZPoKP is a technique that was introduced  in 1985 in~\cite{Goldwasser:1985:KCI:22145.22178}. The idea is that one party can prove to another party that it knows a specific value \(x\), without revealing the value of \(x\) to the other person, nor revealing any other knowledge about the value. 
